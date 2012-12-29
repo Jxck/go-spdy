@@ -39,9 +39,9 @@ func TestCreateParseSynStreamFrame(t *testing.T) {
 	buffer := new(bytes.Buffer)
 	framer := &Framer{
 		headerCompressionDisabled: true,
-		w:         buffer,
-		headerBuf: new(bytes.Buffer),
-		r:         buffer,
+		w:                         buffer,
+		headerBuf:                 new(bytes.Buffer),
+		r:                         buffer,
 	}
 	synStreamFrame := SynStreamFrame{
 		CFHeader: ControlFrameHeader{
@@ -96,9 +96,9 @@ func TestCreateParseSynReplyFrame(t *testing.T) {
 	buffer := new(bytes.Buffer)
 	framer := &Framer{
 		headerCompressionDisabled: true,
-		w:         buffer,
-		headerBuf: new(bytes.Buffer),
-		r:         buffer,
+		w:                         buffer,
+		headerBuf:                 new(bytes.Buffer),
+		r:                         buffer,
 	}
 	synReplyFrame := SynReplyFrame{
 		CFHeader: ControlFrameHeader{
@@ -301,9 +301,9 @@ func TestCreateParseHeadersFrame(t *testing.T) {
 	buffer := new(bytes.Buffer)
 	framer := &Framer{
 		headerCompressionDisabled: true,
-		w:         buffer,
-		headerBuf: new(bytes.Buffer),
-		r:         buffer,
+		w:                         buffer,
+		headerBuf:                 new(bytes.Buffer),
+		r:                         buffer,
 	}
 	headersFrame := HeadersFrame{
 		CFHeader: ControlFrameHeader{
