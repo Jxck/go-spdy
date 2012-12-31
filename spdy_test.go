@@ -8,12 +8,17 @@ import (
 	"bytes"
 	"compress/zlib"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"reflect"
 	"testing"
 )
+
+var log = fmt.Println
+
+// TODO: share header fixture?
 
 func TestHeaderParsing(t *testing.T) {
 	headers := http.Header{
