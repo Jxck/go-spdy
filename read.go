@@ -54,11 +54,6 @@ func (frame *SettingsFrame) read(h ControlFrameHeader, f *Framer) error {
 	return nil
 }
 
-func (frame *NoopFrame) read(h ControlFrameHeader, f *Framer) error {
-	frame.CFHeader = h
-	return nil
-}
-
 func (frame *PingFrame) read(h ControlFrameHeader, f *Framer) error {
 	frame.CFHeader = h
 	if err := binary.Read(f.r, binary.BigEndian, &frame.Id); err != nil {
@@ -95,7 +90,6 @@ var cframeCtor = map[ControlFrameType]func() controlFrame{
 	TypeSynReply:  func() controlFrame { return new(SynReplyFrame) },
 	TypeRstStream: func() controlFrame { return new(RstStreamFrame) },
 	TypeSettings:  func() controlFrame { return new(SettingsFrame) },
-	TypeNoop:      func() controlFrame { return new(NoopFrame) },
 	TypePing:      func() controlFrame { return new(PingFrame) },
 	TypeGoAway:    func() controlFrame { return new(GoAwayFrame) },
 	TypeHeaders:   func() controlFrame { return new(HeadersFrame) },

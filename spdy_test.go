@@ -211,34 +211,6 @@ func TestCreateParseSettings(t *testing.T) {
 	}
 }
 
-func TestCreateParseNoop(t *testing.T) {
-	buffer := new(bytes.Buffer)
-	framer, err := NewFramer(buffer, buffer)
-	if err != nil {
-		t.Fatal("Failed to create new framer:", err)
-	}
-	noopFrame := NoopFrame{
-		CFHeader: ControlFrameHeader{
-			version:   Version,
-			frameType: TypeNoop,
-		},
-	}
-	if err := framer.WriteFrame(&noopFrame); err != nil {
-		t.Fatal("WriteFrame:", err)
-	}
-	frame, err := framer.ReadFrame()
-	if err != nil {
-		t.Fatal("ReadFrame:", err)
-	}
-	parsedNoopFrame, ok := frame.(*NoopFrame)
-	if !ok {
-		t.Fatal("Parsed incorrect frame type:", frame)
-	}
-	if !reflect.DeepEqual(noopFrame, *parsedNoopFrame) {
-		t.Fatal("got: ", *parsedNoopFrame, "\nwant: ", noopFrame)
-	}
-}
-
 func TestCreateParsePing(t *testing.T) {
 	buffer := new(bytes.Buffer)
 	framer, err := NewFramer(buffer, buffer)

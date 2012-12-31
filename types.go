@@ -77,13 +77,6 @@ import (
 //  |        # of entries (32)         |
 //  +----------------------------------+
 //
-//  Control Frame: NOOP
-//  +----------------------------------+
-//  |1|000000000000001|0000000000000101|
-//  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   | = 0
-//  +----------------------------------+
-//
 //  Control Frame: PING
 //  +----------------------------------+
 //  |1|000000000000001|0000000000000110|
@@ -131,12 +124,11 @@ const Version = 2
 type ControlFrameType uint16
 
 // Control frame type constants
-const (
+const ( // Noop (0x0005) removed spdy/3
 	TypeSynStream    ControlFrameType = 0x0001
 	TypeSynReply                      = 0x0002
 	TypeRstStream                     = 0x0003
 	TypeSettings                      = 0x0004
-	TypeNoop                          = 0x0005
 	TypePing                          = 0x0006
 	TypeGoAway                        = 0x0007
 	TypeHeaders                       = 0x0008
@@ -254,11 +246,6 @@ type SettingsFlagIdValue struct {
 type SettingsFrame struct {
 	CFHeader     ControlFrameHeader
 	FlagIdValues []SettingsFlagIdValue
-}
-
-// NoopFrame is the unpacked, in-memory representation of a NOOP frame.
-type NoopFrame struct {
-	CFHeader ControlFrameHeader
 }
 
 // PingFrame is the unpacked, in-memory representation of a PING frame.

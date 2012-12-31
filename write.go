@@ -64,14 +64,6 @@ func (frame *SettingsFrame) write(f *Framer) (err error) {
 	return
 }
 
-func (frame *NoopFrame) write(f *Framer) error {
-	frame.CFHeader.version = Version
-	frame.CFHeader.frameType = TypeNoop
-
-	// Serialize frame to Writer
-	return writeControlFrameHeader(f.w, frame.CFHeader)
-}
-
 func (frame *PingFrame) write(f *Framer) (err error) {
 	if frame.Id == 0 {
 		return &Error{ZeroStreamId, 0}
