@@ -79,11 +79,11 @@ import (
 //  |            (repeat)              | <-+
 //  +----------------------------------+
 //
-//  Control Frame: RST_STREAM
+//  Control Frame: RST_STREAM (16 byte)
 //  +----------------------------------+
-//  |1|000000000000001|0000000000000011|
+//  |1|000000000000011|0000000000000011|
 //  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   |  >= 4
+//  | flags (8)  |  Length (24 bits)   | flags = 0, length = 8
 //  +----------------------------------+
 //  |X|       Stream-ID(31bits)        |
 //  +----------------------------------+
@@ -217,25 +217,30 @@ type SynReplyFrame struct {
 	Headers  http.Header
 }
 
-// StatusCode represents the status that led to a RST_STREAM
-type StatusCode uint32
+// RSTStatusCode represents the status that led to a RST_STREAM
+type RSTStatusCode uint32
 
-const (
-	ProtocolError      StatusCode = 1
-	InvalidStream                 = 2
-	RefusedStream                 = 3
-	UnsupportedVersion            = 4
-	Cancel                        = 5
-	InternalError                 = 6
-	FlowControlError              = 7
+const ( // 0 is invalid
+	ProtocolError         RSTStatusCode = 1
+	InvalidStream                       = 2
+	RefusedStream                       = 3
+	UnsupportedVersion                  = 4
+	Cancel                              = 5
+	InternalError                       = 6
+	FlowControlError                    = 7
+	STREAM_IN_USE                       = 8
+	STREAM_ALREADY_CLOSED               = 9
+	INVALID_CREDENTIALS                 = 10
+	FRAME_TOO_LARGE                     = 11
 )
 
-// RstStreamFrame is the unpacked, in-memory representation of a RST_STREAM
+// RstStreamFrame is the unpacked,
+// in-memory representation of a RST_STREAM
 // frame.
 type RstStreamFrame struct {
 	CFHeader ControlFrameHeader
 	StreamId uint32
-	Status   StatusCode
+	Status   RSTStatusCode
 }
 
 // SettingsFlag represents a flag in a SETTINGS frame.
