@@ -90,13 +90,15 @@ import (
 //  |        Status code (32 bits)     |
 //  +----------------------------------+
 //
-//  Control Frame: SETTINGS
+//  Control Frame: SETTINGS (8 + length)
 //  +----------------------------------+
-//  |1|000000000000001|0000000000000100|
+//  |1|000000000000011|0000000000000100|
 //  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   |
+//  | flags (8)  |  Length (24 bits)   | flags = 0x1(FLAG_SETTINGS_CLEAR_SETINGS)
 //  +----------------------------------+
-//  |        # of entries (32)         |
+//  | ID.flags (8) | Unique ID (24)    |
+//  +----------------------------------+
+//  |          Value (32)              |
 //  +----------------------------------+
 //
 //  Control Frame: PING
@@ -255,11 +257,14 @@ const (
 type SettingsId uint32
 
 const (
-	SettingsUploadBandwidth      SettingsId = 1
-	SettingsDownloadBandwidth               = 2
-	SettingsRoundTripTime                   = 3
-	SettingsMaxConcurrentStreams            = 4
-	SettingsCurrentCwnd                     = 5
+	SettingsUploadBandwidth             SettingsId = 1
+	SettingsDownloadBandwidth                      = 2
+	SettingsRoundTripTime                          = 3
+	SettingsMaxConcurrentStreams                   = 4
+	SettingsCurrentCwnd                            = 5
+	SettingsDownloadRetransRate                    = 6
+	SettingsInitialWindowSize                      = 7
+	SettingsClientCretificateVectorSize            = 8
 )
 
 // SettingsFlagIdValue is the unpacked, in-memory representation of the
@@ -270,8 +275,8 @@ type SettingsFlagIdValue struct {
 	Value uint32
 }
 
-// SettingsFrame is the unpacked, in-memory representation of a SPDY
-// SETTINGS frame.
+// SettingsFrame is the unpacked,
+// in-memory representation of a SPDY SETTINGS frame.
 type SettingsFrame struct {
 	CFHeader     ControlFrameHeader
 	FlagIdValues []SettingsFlagIdValue

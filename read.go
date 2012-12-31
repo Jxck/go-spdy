@@ -46,6 +46,8 @@ func (frame *SettingsFrame) read(h ControlFrameHeader, f *Framer) error {
 		if err := binary.Read(f.r, binary.BigEndian, &frame.FlagIdValues[i].Id); err != nil {
 			return err
 		}
+		// | flag(8) | ID(24) |
+		// |     value(32)    |
 		frame.FlagIdValues[i].Flag = SettingsFlag((frame.FlagIdValues[i].Id & 0xff000000) >> 24)
 		frame.FlagIdValues[i].Id &= 0xffffff
 		if err := binary.Read(f.r, binary.BigEndian, &frame.FlagIdValues[i].Value); err != nil {
