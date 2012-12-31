@@ -193,7 +193,10 @@ func (f *Framer) writeSynStreamFrame(frame *SynStreamFrame) (err error) {
 		return err
 	}
 	// TODO: fix this for version 3
-	if err = binary.Write(f.w, binary.BigEndian, frame.Priority<<14); err != nil {
+	if err = binary.Write(f.w, binary.BigEndian, frame.Priority<<5); err != nil {
+		return err
+	}
+	if err = binary.Write(f.w, binary.BigEndian, frame.Slot); err != nil {
 		return err
 	}
 	if _, err = f.w.Write(f.headerBuf.Bytes()); err != nil {

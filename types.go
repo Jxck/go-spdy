@@ -33,17 +33,29 @@ import (
 //  |               Data               |
 //  +----------------------------------+
 //
-//  Control Frame: SYN_STREAM
+//  Control Frame: SYN_STREAM (18 + length)
 //  +----------------------------------+
-//  |1|000000000000001|0000000000000001|
+//  |1|000000000000011|0000000000000001|
 //  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   |  >= 12
+//  | flags (8)  |  Length (24 bits)   | flags = 0x01(FLAG_FIN), 0x02(FLAG_UNIDIRECTIONAL)
 //  +----------------------------------+
-//  |X|       Stream-ID(31bits)        |
+//  |X|       Stream-ID(31bits)        | <-+
+//  +----------------------------------+   |
+//  |X|Associated-To-Stream-ID (31bits)|   | 10byte
+//  +----------------------------------+   |
+//  |Pri(3)|unused(5)|SLOT(8bits)|     | <-+
 //  +----------------------------------+
-//  |X|Associated-To-Stream-ID (31bits)|
-//  +----------------------------------+
-//  |Pri| unused      | Length (16bits)|
+//  | # of Name/Value pair(int 32)     | <-+
+//  +----------------------------------+   | compressed
+//  |     Length of name (int 32)      |   |
+//  +----------------------------------+   |
+//  |          Name (String)           |   |
+//  +----------------------------------+   |
+//  |     Length of value (int 32)     |   |
+//  +----------------------------------+   |
+//  |          Value (String)          |   |
+//  +----------------------------------+   |
+//  |            (repeat)              | <-+
 //  +----------------------------------+
 //
 //  Control Frame: SYN_REPLY
@@ -174,15 +186,16 @@ type controlFrame interface {
 	read(h ControlFrameHeader, f *Framer) error
 }
 
-// SynStreamFrame is the unpacked, in-memory representation of a SYN_STREAM
-// frame.
+// SynStreamFrame is the unpacked,
+// in-memory representation of a SYN_STREAM frame.
 type SynStreamFrame struct {
 	CFHeader             ControlFrameHeader
 	StreamId             uint32
 	AssociatedToStreamId uint32
-	// Note, only 2 highest bits currently used
+	// Note, only 3 highest bits currently used
 	// Rest of Priority is unused.
-	Priority uint16
+	Priority uint8
+	Slot     uint8
 	Headers  http.Header
 }
 

@@ -389,7 +389,19 @@ func TestCompressionContextAcrossFrames(t *testing.T) {
 	if err := framer.WriteFrame(&headersFrame); err != nil {
 		t.Fatal("WriteFrame (HEADERS):", err)
 	}
-	synStreamFrame := SynStreamFrame{ControlFrameHeader{Version, TypeSynStream, 0, 0}, 2, 0, 0, nil}
+	synStreamFrame := SynStreamFrame{
+		ControlFrameHeader{
+			Version,
+			TypeSynStream,
+			0, // Flags
+			0, // length
+		},
+		2,   // StreamId
+		0,   // AssociatedTOStreamID
+		0,   // Priority
+		1,   // Slot
+		nil, // Headers
+	}
 	synStreamFrame.Headers = http.Header{
 		"Url":     []string{"http://www.google.com/"},
 		"Method":  []string{"get"},

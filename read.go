@@ -198,7 +198,11 @@ func (f *Framer) readSynStreamFrame(h ControlFrameHeader, frame *SynStreamFrame)
 	if err = binary.Read(f.r, binary.BigEndian, &frame.Priority); err != nil {
 		return err
 	}
-	frame.Priority >>= 14
+	frame.Priority >>= 5
+
+	if err = binary.Read(f.r, binary.BigEndian, &frame.Slot); err != nil {
+		return err
+	}
 
 	reader := f.r
 	if !f.headerCompressionDisabled {
