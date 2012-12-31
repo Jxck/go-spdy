@@ -58,15 +58,25 @@ import (
 //  |            (repeat)              | <-+
 //  +----------------------------------+
 //
-//  Control Frame: SYN_REPLY
+//  Control Frame: SYN_REPLY (24 + length)
 //  +----------------------------------+
-//  |1|000000000000001|0000000000000010|
+//  |1|000000000000011|0000000000000010|
 //  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   |  >= 8
+//  | flags (8)  |  Length (24 bits)   | flags = 0x01(FLAG_FIN)
 //  +----------------------------------+
 //  |X|       Stream-ID(31bits)        |
 //  +----------------------------------+
-//  | unused (16 bits)| Length (16bits)|
+//  | # of Name/Value pair(int 32)     | <-+
+//  +----------------------------------+   | compressed
+//  |     Length of name (int 32)      |   |
+//  +----------------------------------+   |
+//  |          Name (String)           |   |
+//  +----------------------------------+   |
+//  |     Length of value (int 32)     |   |
+//  +----------------------------------+   |
+//  |          Value (String)          |   |
+//  +----------------------------------+   |
+//  |            (repeat)              | <-+
 //  +----------------------------------+
 //
 //  Control Frame: RST_STREAM
@@ -199,7 +209,8 @@ type SynStreamFrame struct {
 	Headers  http.Header
 }
 
-// SynReplyFrame is the unpacked, in-memory representation of a SYN_REPLY frame.
+// SynReplyFrame is the unpacked,
+// in-memory representation of a SYN_REPLY frame.
 type SynReplyFrame struct {
 	CFHeader ControlFrameHeader
 	StreamId uint32

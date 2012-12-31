@@ -234,9 +234,6 @@ func (f *Framer) writeSynReplyFrame(frame *SynReplyFrame) (err error) {
 	if err = binary.Write(f.w, binary.BigEndian, frame.StreamId); err != nil {
 		return
 	}
-	if err = binary.Write(f.w, binary.BigEndian, uint16(0)); err != nil {
-		return
-	}
 	if _, err = f.w.Write(f.headerBuf.Bytes()); err != nil {
 		return
 	}

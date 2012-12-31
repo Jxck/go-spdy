@@ -240,10 +240,6 @@ func (f *Framer) readSynReplyFrame(h ControlFrameHeader, frame *SynReplyFrame) e
 	if err = binary.Read(f.r, binary.BigEndian, &frame.StreamId); err != nil {
 		return err
 	}
-	var unused uint16
-	if err = binary.Read(f.r, binary.BigEndian, &unused); err != nil {
-		return err
-	}
 	reader := f.r
 	if !f.headerCompressionDisabled {
 		err := f.uncorkHeaderDecompressor(int64(h.length - 6))
