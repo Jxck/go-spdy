@@ -25,6 +25,7 @@ func (frame *RstStreamFrame) write(f *Framer) (err error) {
 	}
 	frame.CFHeader.version = Version
 	frame.CFHeader.frameType = TypeRstStream
+	frame.CFHeader.Flags = 0
 	frame.CFHeader.length = 8
 
 	// Serialize frame to Writer
