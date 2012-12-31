@@ -116,6 +116,7 @@ func (f *Framer) WriteFrame(frame Frame) error {
 	return frame.write(f)
 }
 
+// Write Control bit 1, Version, Type, Flags, Length to buffer
 func writeControlFrameHeader(w io.Writer, h ControlFrameHeader) error {
 	if err := binary.Write(w, binary.BigEndian, 0x8000|h.version); err != nil {
 		return err
@@ -166,7 +167,7 @@ func (f *Framer) writeSynStreamFrame(frame *SynStreamFrame) (err error) {
 	// Marshal the headers.
 	var writer io.Writer = f.headerBuf
 	if !f.headerCompressionDisabled {
-		writer = f.headerCompressor
+		writer = f.headerCompressor // zlib.NewWriterLevelDict
 	}
 	if _, err = writeHeaderValueBlock(writer, frame.Headers); err != nil {
 		return
@@ -190,6 +191,7 @@ func (f *Framer) writeSynStreamFrame(frame *SynStreamFrame) (err error) {
 	if err = binary.Write(f.w, binary.BigEndian, frame.AssociatedToStreamId); err != nil {
 		return err
 	}
+	// TODO: fix this for version 3
 	if err = binary.Write(f.w, binary.BigEndian, frame.Priority<<14); err != nil {
 		return err
 	}

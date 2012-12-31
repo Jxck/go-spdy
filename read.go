@@ -117,6 +117,7 @@ func (f *Framer) ReadFrame() (Frame, error) {
 		return nil, err
 	}
 	if (firstWord & 0x80000000) != 0 {
+		// | 1 | Version(15) | Type(16) |
 		frameType := ControlFrameType(firstWord & 0xffff)
 		version := uint16(0x7fff & (firstWord >> 16))
 		return f.parseControlFrame(version, frameType)
@@ -129,6 +130,7 @@ func (f *Framer) parseControlFrame(version uint16, frameType ControlFrameType) (
 	if err := binary.Read(f.r, binary.BigEndian, &length); err != nil {
 		return nil, err
 	}
+	// | Flags (8) | Length (24) |
 	flags := ControlFlags((length & 0xff000000) >> 24)
 	length &= 0xffffff
 	header := ControlFrameHeader{version, frameType, flags, length}
