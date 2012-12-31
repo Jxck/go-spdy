@@ -35,6 +35,7 @@ func (frame *RstStreamFrame) write(f *Framer) (err error) {
 	if err = binary.Write(f.w, binary.BigEndian, frame.StreamId); err != nil {
 		return
 	}
+	// TODO: frame.Status should not be 0 check
 	if err = binary.Write(f.w, binary.BigEndian, frame.Status); err != nil {
 		return
 	}
