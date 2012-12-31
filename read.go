@@ -145,14 +145,14 @@ func (f *Framer) parseControlFrame(version uint16, frameType ControlFrameType) (
 }
 
 func parseHeaderValueBlock(r io.Reader, streamId uint32) (http.Header, error) {
-	var numHeaders uint16
+	var numHeaders uint32
 	if err := binary.Read(r, binary.BigEndian, &numHeaders); err != nil {
 		return nil, err
 	}
 	var e error
 	h := make(http.Header, int(numHeaders))
 	for i := 0; i < int(numHeaders); i++ {
-		var length uint16
+		var length uint32
 		if err := binary.Read(r, binary.BigEndian, &length); err != nil {
 			return nil, err
 		}
