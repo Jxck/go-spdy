@@ -118,7 +118,7 @@ import (
 //  +----------------------------------+
 
 // Version is the protocol version number that this package implements.
-const Version = 2
+const Version = 3
 
 // ControlFrameType stores the type field in a control frame header.
 type ControlFrameType uint16
