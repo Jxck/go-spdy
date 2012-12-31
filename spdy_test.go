@@ -35,8 +35,9 @@ func TestHeaderParsing(t *testing.T) {
 	}
 }
 
-func TestCreateParseSynStreamFrame(t *testing.T) {
+func TestCreateParseSynStreamFrameCompressionDisable(t *testing.T) {
 	buffer := new(bytes.Buffer)
+	// fixture framer for no compression test
 	framer := &Framer{
 		headerCompressionDisabled: true,
 		w:                         buffer,
@@ -69,21 +70,34 @@ func TestCreateParseSynStreamFrame(t *testing.T) {
 	if !reflect.DeepEqual(synStreamFrame, *parsedSynStreamFrame) {
 		t.Fatal("got: ", *parsedSynStreamFrame, "\nwant: ", synStreamFrame)
 	}
+}
 
-	// Test again with compression
-	buffer.Reset()
-	framer, err = NewFramer(buffer, buffer)
+func TestCreateParseSynStreamFrameCompressionEnable(t *testing.T) {
+	buffer := new(bytes.Buffer)
+	framer, err := NewFramer(buffer, buffer)
+	synStreamFrame := SynStreamFrame{
+		CFHeader: ControlFrameHeader{
+			version:   Version,
+			frameType: TypeSynStream,
+		},
+		StreamId: 2,
+		Headers: http.Header{
+			"Url":     []string{"http://www.google.com/"},
+			"Method":  []string{"get"},
+			"Version": []string{"http/1.1"},
+		},
+	}
 	if err != nil {
 		t.Fatal("Failed to create new framer:", err)
 	}
 	if err := framer.WriteFrame(&synStreamFrame); err != nil {
 		t.Fatal("WriteFrame with compression:", err)
 	}
-	frame, err = framer.ReadFrame()
+	frame, err := framer.ReadFrame()
 	if err != nil {
 		t.Fatal("ReadFrame with compression:", err)
 	}
-	parsedSynStreamFrame, ok = frame.(*SynStreamFrame)
+	parsedSynStreamFrame, ok := frame.(*SynStreamFrame)
 	if !ok {
 		t.Fatal("Parsed incorrect frame type:", frame)
 	}
