@@ -255,12 +255,9 @@ func (f *Framer) readSynReplyFrame(h ControlFrameHeader, frame *SynReplyFrame) e
 	if err != nil {
 		return err
 	}
-	// Remove this condition when we bump Version to 3.
-	if Version >= 3 {
-		for h := range frame.Headers {
-			if invalidRespHeaders[h] {
-				return &Error{InvalidHeaderPresent, frame.StreamId}
-			}
+	for h := range frame.Headers {
+		if invalidRespHeaders[h] {
+			return &Error{InvalidHeaderPresent, frame.StreamId}
 		}
 	}
 	if frame.StreamId == 0 {

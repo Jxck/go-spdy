@@ -411,8 +411,18 @@ func (e *Error) Error() string {
 	return string(e.Err)
 }
 
+// TODO: need this ?
+// var mustReqHeaders = map[string]bool{
+// 	"method":  true,
+// 	"host":    true,
+// 	"path":    true,
+// 	"scheme":  true,
+// 	"version": true,
+// }
+
 var invalidReqHeaders = map[string]bool{
 	"Connection":        true,
+	"Host":              true,
 	"Keep-Alive":        true,
 	"Proxy-Connection":  true,
 	"Transfer-Encoding": true,
@@ -421,6 +431,7 @@ var invalidReqHeaders = map[string]bool{
 var invalidRespHeaders = map[string]bool{
 	"Connection":        true,
 	"Keep-Alive":        true,
+	"Proxy-Connection":  true,
 	"Transfer-Encoding": true,
 }
 
