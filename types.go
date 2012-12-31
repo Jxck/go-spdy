@@ -101,11 +101,11 @@ import (
 //  |          Value (32)              |
 //  +----------------------------------+
 //
-//  Control Frame: PING
+//  Control Frame: PING (12)
 //  +----------------------------------+
-//  |1|000000000000001|0000000000000110|
+//  |1|000000000000011|0000000000000110|
 //  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   | = 4
+//  | flags (8)  |  Length (24 bits)   | flags = 0, length = 4
 //  +----------------------------------+
 //  |        Unique id (32 bits)       |
 //  +----------------------------------+
@@ -282,7 +282,8 @@ type SettingsFrame struct {
 	FlagIdValues []SettingsFlagIdValue
 }
 
-// PingFrame is the unpacked, in-memory representation of a PING frame.
+// PingFrame is the unpacked,
+// in-memory representation of a PING frame.
 type PingFrame struct {
 	CFHeader ControlFrameHeader
 	Id       uint32

@@ -72,6 +72,7 @@ func (frame *PingFrame) write(f *Framer) (err error) {
 	}
 	frame.CFHeader.version = Version
 	frame.CFHeader.frameType = TypePing
+	frame.CFHeader.Flags = 0
 	frame.CFHeader.length = 4
 
 	// Serialize frame to Writer
