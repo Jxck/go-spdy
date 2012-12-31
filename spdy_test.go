@@ -111,7 +111,7 @@ func TestCreateParseSynStreamFrameCompressionEnable(t *testing.T) {
 	}
 }
 
-func TestCreateParseSynReplyFrame(t *testing.T) {
+func TestCreateParseSynReplyFrameCompressionDisable(t *testing.T) {
 	buffer := new(bytes.Buffer)
 	framer := &Framer{
 		headerCompressionDisabled: true,
@@ -145,21 +145,34 @@ func TestCreateParseSynReplyFrame(t *testing.T) {
 	if !reflect.DeepEqual(synReplyFrame, *parsedSynReplyFrame) {
 		t.Fatal("got: ", *parsedSynReplyFrame, "\nwant: ", synReplyFrame)
 	}
+}
 
-	// Test again with compression
-	buffer.Reset()
-	framer, err = NewFramer(buffer, buffer)
+func TestCreateParseSynReplyFrameCompressionEnable(t *testing.T) {
+	buffer := new(bytes.Buffer)
+	framer, err := NewFramer(buffer, buffer)
+	synReplyFrame := SynReplyFrame{
+		CFHeader: ControlFrameHeader{
+			version:   Version,
+			frameType: TypeSynReply,
+		},
+		StreamId: 2,
+		Headers: http.Header{
+			"Url":     []string{"http://www.google.com/"},
+			"Method":  []string{"get"},
+			"Version": []string{"http/1.1"},
+		},
+	}
 	if err != nil {
 		t.Fatal("Failed to create new framer:", err)
 	}
 	if err := framer.WriteFrame(&synReplyFrame); err != nil {
 		t.Fatal("WriteFrame with compression:", err)
 	}
-	frame, err = framer.ReadFrame()
+	frame, err := framer.ReadFrame()
 	if err != nil {
 		t.Fatal("ReadFrame with compression:", err)
 	}
-	parsedSynReplyFrame, ok = frame.(*SynReplyFrame)
+	parsedSynReplyFrame, ok := frame.(*SynReplyFrame)
 	if !ok {
 		t.Fatal("Parsed incorrect frame type:", frame)
 	}
