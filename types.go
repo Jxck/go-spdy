@@ -153,6 +153,23 @@ import (
 //  |X|  Delta-Window-Size (31 bits)   |
 //  +----------------------------------+
 //
+//  TODO: impliment
+//  Control Frame: CREDENTIAL
+//  +----------------------------------+
+//  |1|000000000000001|0000000000001011|
+//  +----------------------------------+
+//  | flags (8)  |  Length (24 bits)   |
+//  +----------------------------------+
+//  |  Slot (16 bits) |                |
+//  +-----------------+                |
+//  |      Proof Length (32 bits)      |
+//  +----------------------------------+
+//  |               Proof              |
+//  +----------------------------------+ <+
+//  |   Certificate Length (32 bits)   |  |
+//  +----------------------------------+  | Repeated until end of frame
+//  |            Certificate           |  |
+//  +----------------------------------+ <+
 
 // Version is the protocol version number that this package implements.
 const Version = 3
