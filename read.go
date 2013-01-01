@@ -281,13 +281,9 @@ func (f *Framer) readHeadersFrame(h ControlFrameHeader, frame *HeadersFrame) err
 	if err = binary.Read(f.r, binary.BigEndian, &frame.StreamId); err != nil {
 		return err
 	}
-	var unused uint16
-	if err = binary.Read(f.r, binary.BigEndian, &unused); err != nil {
-		return err
-	}
 	reader := f.r
 	if !f.headerCompressionDisabled {
-		err := f.uncorkHeaderDecompressor(int64(h.length - 6))
+		err := f.uncorkHeaderDecompressor(int64(h.length - 4))
 		if err != nil {
 			return err
 		}
@@ -301,18 +297,17 @@ func (f *Framer) readHeadersFrame(h ControlFrameHeader, frame *HeadersFrame) err
 		return err
 	}
 
-	// Remove this condition when we bump Version to 3.
-	if Version >= 3 {
-		var invalidHeaders map[string]bool
-		if frame.StreamId%2 == 0 {
-			invalidHeaders = invalidReqHeaders
-		} else {
-			invalidHeaders = invalidRespHeaders
-		}
-		for h := range frame.Headers {
-			if invalidHeaders[h] {
-				return &Error{InvalidHeaderPresent, frame.StreamId}
-			}
+	// TODO: check flags are valid
+
+	var invalidHeaders map[string]bool
+	if frame.StreamId%2 == 0 {
+		invalidHeaders = invalidReqHeaders
+	} else {
+		invalidHeaders = invalidRespHeaders
+	}
+	for h := range frame.Headers {
+		if invalidHeaders[h] {
+			return &Error{InvalidHeaderPresent, frame.StreamId}
 		}
 	}
 	if frame.StreamId == 0 {

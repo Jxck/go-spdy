@@ -263,16 +263,13 @@ func (f *Framer) writeHeadersFrame(frame *HeadersFrame) (err error) {
 	// Set ControlFrameHeader
 	frame.CFHeader.version = Version
 	frame.CFHeader.frameType = TypeHeaders
-	frame.CFHeader.length = uint32(len(f.headerBuf.Bytes()) + 6)
+	frame.CFHeader.length = uint32(len(f.headerBuf.Bytes()) + 4)
 
 	// Serialize frame to Writer
 	if err = writeControlFrameHeader(f.w, frame.CFHeader); err != nil {
 		return
 	}
 	if err = binary.Write(f.w, binary.BigEndian, frame.StreamId); err != nil {
-		return
-	}
-	if err = binary.Write(f.w, binary.BigEndian, uint16(0)); err != nil {
 		return
 	}
 	if _, err = f.w.Write(f.headerBuf.Bytes()); err != nil {
