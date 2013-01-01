@@ -336,18 +336,32 @@ func TestCreateParseHeadersFrame(t *testing.T) {
 	if !reflect.DeepEqual(headersFrame, *parsedHeadersFrame) {
 		t.Fatal("got: ", *parsedHeadersFrame, "\nwant: ", headersFrame)
 	}
+}
 
-	// Test again with compression
-	buffer.Reset()
-	framer, err = NewFramer(buffer, buffer)
+func TestCreateParseHeadersFrameCompressionEnable(t *testing.T) {
+	buffer := new(bytes.Buffer)
+	headersFrame := HeadersFrame{
+		CFHeader: ControlFrameHeader{
+			version:   Version,
+			frameType: TypeHeaders,
+		},
+		StreamId: 2,
+	}
+	headersFrame.Headers = http.Header{
+		"Url":     []string{"http://www.google.com/"},
+		"Method":  []string{"get"},
+		"Version": []string{"http/1.1"},
+	}
+
+	framer, err := NewFramer(buffer, buffer)
 	if err := framer.WriteFrame(&headersFrame); err != nil {
 		t.Fatal("WriteFrame with compression:", err)
 	}
-	frame, err = framer.ReadFrame()
+	frame, err := framer.ReadFrame()
 	if err != nil {
 		t.Fatal("ReadFrame with compression:", err)
 	}
-	parsedHeadersFrame, ok = frame.(*HeadersFrame)
+	parsedHeadersFrame, ok := frame.(*HeadersFrame)
 	if !ok {
 		t.Fatal("Parsed incorrect frame type:", frame)
 	}
