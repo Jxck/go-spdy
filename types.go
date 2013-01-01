@@ -2,10 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package spdy implements SPDY protocol which is described in
-// draft-mbelshe-httpbis-spdy-00.
-//
-// http://tools.ietf.org/html/draft-mbelshe-httpbis-spdy-00
+// Package spdy implements HTTP2.0 (SPDY/3) protocol which is described in
+// http://tools.ietf.org/html/draft-ietf-httpbis-http2-00
 package spdy
 
 import (
@@ -19,7 +17,7 @@ import (
 //  +----------------------------------+
 //  |0|       Stream-ID (31bits)       |
 //  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   |
+//  | flags (8)  |  Length (24 bits)   | flags = 0x01(FLAG_FIN) or 0x02(FLAG_COMPRESS)
 //  +----------------------------------+
 //  |               Data               |
 //  +----------------------------------+
@@ -35,7 +33,7 @@ import (
 //
 //  Control Frame: SYN_STREAM (18 + length)
 //  +----------------------------------+
-//  |1|000000000000011|0000000000000001|
+//  |1| Version(15bits) | Type(16bits) |
 //  +----------------------------------+
 //  | flags (8)  |  Length (24 bits)   | flags = 0x01(FLAG_FIN), 0x02(FLAG_UNIDIRECTIONAL)
 //  +----------------------------------+
@@ -60,7 +58,7 @@ import (
 //
 //  Control Frame: SYN_REPLY (24 + length)
 //  +----------------------------------+
-//  |1|000000000000011|0000000000000010|
+//  |1| Version(15bits) | Type(16bits) |
 //  +----------------------------------+
 //  | flags (8)  |  Length (24 bits)   | flags = 0x01(FLAG_FIN)
 //  +----------------------------------+
@@ -81,7 +79,7 @@ import (
 //
 //  Control Frame: RST_STREAM (16 byte)
 //  +----------------------------------+
-//  |1|000000000000011|0000000000000011|
+//  |1| Version(15bits) | Type(16bits) |
 //  +----------------------------------+
 //  | flags (8)  |  Length (24 bits)   | flags = 0, length = 8
 //  +----------------------------------+
@@ -92,7 +90,7 @@ import (
 //
 //  Control Frame: SETTINGS (8 + length)
 //  +----------------------------------+
-//  |1|000000000000011|0000000000000100|
+//  |1| Version(15bits) | Type(16bits) |
 //  +----------------------------------+
 //  | flags (8)  |  Length (24 bits)   | flags = 0x1(FLAG_SETTINGS_CLEAR_SETINGS)
 //  +----------------------------------+
@@ -103,7 +101,7 @@ import (
 //
 //  Control Frame: PING (12)
 //  +----------------------------------+
-//  |1|000000000000011|0000000000000110|
+//  |1| Version(15bits) | Type(16bits) |
 //  +----------------------------------+
 //  | flags (8)  |  Length (24 bits)   | flags = 0, length = 4
 //  +----------------------------------+
@@ -112,7 +110,7 @@ import (
 //
 //  Control Frame: GOAWAY
 //  +----------------------------------+
-//  |1|000000000000011|0000000000000111|
+//  |1| Version(15bits) | Type(16bits) |
 //  +----------------------------------+
 //  | flags (8)  |  Length (24 bits)   | flags = 0, length = 8
 //  +----------------------------------+
@@ -123,7 +121,7 @@ import (
 //
 //  Control Frame: HEADERS (12 + length)
 //  +----------------------------------+
-//  |1|000000000000011|0000000000001000|
+//  |1| Version(15bits) | Type(16bits) |
 //  +----------------------------------+
 //  | flags (8)  |  Length (24 bits)   | flags = 0x01 (FLAG_FIN), Length >= 4
 //  +----------------------------------+
@@ -144,7 +142,7 @@ import (
 //
 //  Control Frame: WINDOW_UPDATE
 //  +----------------------------------+
-//  |1|000000000000011|0000000000001001|
+//  |1| Version(15bits) | Type(16bits) |
 //  +----------------------------------+
 //  | flags (8)  |  Length (24 bits)   | flags = 0, lenght = 8
 //  +----------------------------------+
@@ -156,7 +154,7 @@ import (
 //  TODO: impliment
 //  Control Frame: CREDENTIAL
 //  +----------------------------------+
-//  |1|000000000000001|0000000000001011|
+//  |1| Version(15bits) | Type(16bits) |
 //  +----------------------------------+
 //  | flags (8)  |  Length (24 bits)   |
 //  +----------------------------------+
@@ -204,11 +202,12 @@ const (
 	DataFlagCompressed           = 0x02
 )
 
-// MaxDataLength is the maximum number of bytes that can be stored in one frame.
+// MaxDataLength is the maximum number of bytes
+// that can be stored in one frame.
 const MaxDataLength = 1<<24 - 1
 
-// Frame is a single SPDY frame in its unpacked in-memory representation. Use
-// Framer to read and write it.
+// Frame is a single SPDY frame in its unpacked in-memory representation.
+// Use Framer to read and write it.
 type Frame interface {
 	write(f *Framer) error
 }
@@ -297,8 +296,9 @@ const (
 	SettingsClientCretificateVectorSize            = 8
 )
 
-// SettingsFlagIdValue is the unpacked, in-memory representation of the
-// combined flag/id/value for a setting in a SETTINGS frame.
+// SettingsFlagIdValue is the unpacked,
+// in-memory representation of the combined
+// flag/id/value for a setting in a SETTINGS frame.
 type SettingsFlagIdValue struct {
 	Flag  SettingsFlag
 	Id    SettingsId
@@ -328,7 +328,8 @@ type GoAwayFrame struct {
 	// TODO: StatusCode is better
 }
 
-// HeadersFrame is the unpacked, in-memory representation of a HEADERS frame.
+// HeadersFrame is the unpacked,
+// in-memory representation of a HEADERS frame.
 type HeadersFrame struct {
 	CFHeader ControlFrameHeader
 	StreamId uint32
@@ -343,9 +344,11 @@ type WindowUpdateFrame struct {
 	DeltaWindowSize uint32
 }
 
-// DataFrame is the unpacked, in-memory representation of a DATA frame.
+// DataFrame is the unpacked,
+// in-memory representation of a DATA frame.
 type DataFrame struct {
-	// Note, high bit is the "Control" bit. Should be 0 for data frames.
+	// Note, high bit is the "Control" bit.
+	// Should be 0 for data frames.
 	StreamId uint32
 	Flags    DataFlags
 	Data     []byte
@@ -353,7 +356,8 @@ type DataFrame struct {
 
 // HeaderDictionary is the dictionary sent to the zlib compressor/decompressor.
 // Even though the specification states there is no null byte at the end, Chrome sends it.
-const HeaderDictionary = "\x00\x00\x00\x07\x6f\x70\x74\x69\x6f\x6e\x73\x00\x00\x00\x04\x68\x65" +
+const HeaderDictionary = "" +
+	"\x00\x00\x00\x07\x6f\x70\x74\x69\x6f\x6e\x73\x00\x00\x00\x04\x68\x65" +
 	"\x61\x64\x00\x00\x00\x04\x70\x6f\x73\x74\x00\x00\x00\x03\x70\x75\x74" +
 	"\x00\x00\x00\x06\x64\x65\x6c\x65\x74\x65\x00\x00\x00\x05\x74\x72\x61" +
 	"\x63\x65\x00\x00\x00\x06\x61\x63\x63\x65\x70\x74\x00\x00\x00\x0e\x61" +
@@ -487,8 +491,8 @@ var invalidRespHeaders = map[string]bool{
 	"Transfer-Encoding": true,
 }
 
-// Framer handles serializing/deserializing SPDY frames, including compressing/
-// decompressing payloads.
+// Framer handles serializing/deserializing SPDY frames,
+// including compressing/decompressing payloads.
 type Framer struct {
 	headerCompressionDisabled bool
 	w                         io.Writer
