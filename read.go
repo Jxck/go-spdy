@@ -74,6 +74,11 @@ func (frame *GoAwayFrame) read(h ControlFrameHeader, f *Framer) error {
 	if err := binary.Read(f.r, binary.BigEndian, &frame.LastGoodStreamId); err != nil {
 		return err
 	}
+	// TODO: frame.CFHeader.Flags should be 0 check
+	// TODO: frame.CFHeader.length should be 8 check
+	if err := binary.Read(f.r, binary.BigEndian, &frame.Status); err != nil {
+		return err
+	}
 	return nil
 }
 

@@ -284,6 +284,7 @@ func TestCreateParseGoAway(t *testing.T) {
 			frameType: TypeGoAway,
 		},
 		LastGoodStreamId: 31337,
+		Status:           1,
 	}
 	if err := framer.WriteFrame(&goAwayFrame); err != nil {
 		t.Fatal("WriteFrame:", err)

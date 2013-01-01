@@ -112,11 +112,13 @@ import (
 //
 //  Control Frame: GOAWAY
 //  +----------------------------------+
-//  |1|000000000000001|0000000000000111|
+//  |1|000000000000011|0000000000000111|
 //  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   | = 4
+//  | flags (8)  |  Length (24 bits)   | flags = 0, length = 8
 //  +----------------------------------+
-//  |X|  Last-accepted-stream-id       |
+//  |X| Last-accepted-stream-id(31bits)|
+//  +----------------------------------+
+//  |           Status code            | 0 = OK, 1 = PROTOCOL_ERROR, 11 = INTERNAL_ERROR
 //  +----------------------------------+
 //
 //  Control Frame: HEADERS
@@ -289,10 +291,13 @@ type PingFrame struct {
 	Id       uint32
 }
 
-// GoAwayFrame is the unpacked, in-memory representation of a GOAWAY frame.
+// GoAwayFrame is the unpacked,
+// in-memory representation of a GOAWAY frame.
 type GoAwayFrame struct {
 	CFHeader         ControlFrameHeader
 	LastGoodStreamId uint32
+	Status           uint32
+	// TODO: StatusCode is better
 }
 
 // HeadersFrame is the unpacked, in-memory representation of a HEADERS frame.

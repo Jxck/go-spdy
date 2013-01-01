@@ -88,13 +88,16 @@ func (frame *PingFrame) write(f *Framer) (err error) {
 func (frame *GoAwayFrame) write(f *Framer) (err error) {
 	frame.CFHeader.version = Version
 	frame.CFHeader.frameType = TypeGoAway
-	frame.CFHeader.length = 4
+	frame.CFHeader.length = 8
 
 	// Serialize frame to Writer
 	if err = writeControlFrameHeader(f.w, frame.CFHeader); err != nil {
 		return
 	}
 	if err = binary.Write(f.w, binary.BigEndian, frame.LastGoodStreamId); err != nil {
+		return
+	}
+	if err = binary.Write(f.w, binary.BigEndian, frame.Status); err != nil {
 		return
 	}
 	return nil
