@@ -231,7 +231,7 @@ func (f *Framer) writeSynReplyFrame(frame *SynReplyFrame) (err error) {
 	// Set ControlFrameHeader
 	frame.CFHeader.version = Version
 	frame.CFHeader.frameType = TypeSynReply
-	frame.CFHeader.length = uint32(len(f.headerBuf.Bytes()) + 6)
+	frame.CFHeader.length = uint32(len(f.headerBuf.Bytes()) + 4)
 
 	// Serialize frame to Writer
 	if err = writeControlFrameHeader(f.w, frame.CFHeader); err != nil {

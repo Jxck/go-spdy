@@ -251,7 +251,7 @@ func (f *Framer) readSynReplyFrame(h ControlFrameHeader, frame *SynReplyFrame) e
 	}
 	reader := f.r
 	if !f.headerCompressionDisabled {
-		err := f.uncorkHeaderDecompressor(int64(h.length - 6))
+		err := f.uncorkHeaderDecompressor(int64(h.length - 4))
 		if err != nil {
 			return err
 		}
