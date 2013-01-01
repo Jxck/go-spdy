@@ -370,6 +370,36 @@ func TestCreateParseHeadersFrameCompressionEnable(t *testing.T) {
 	}
 }
 
+func TestCreateParseWindowUpdateFrame(t *testing.T) {
+	buffer := new(bytes.Buffer)
+	framer, err := NewFramer(buffer, buffer)
+	if err != nil {
+		t.Fatal("Failed to create new framer:", err)
+	}
+	windowUpdateFrame := WindowUpdateFrame{
+		CFHeader: ControlFrameHeader{
+			version:   Version,
+			frameType: TypeWindowUpdate,
+		},
+		StreamId:        31337,
+		DeltaWindowSize: 1,
+	}
+	if err := framer.WriteFrame(&windowUpdateFrame); err != nil {
+		t.Fatal("WriteFrame:", err)
+	}
+	frame, err := framer.ReadFrame()
+	if err != nil {
+		t.Fatal("ReadFrame:", err)
+	}
+	parsedWindowUpdateFrame, ok := frame.(*WindowUpdateFrame)
+	if !ok {
+		t.Fatal("Parsed incorrect frame type:", frame)
+	}
+	if !reflect.DeepEqual(windowUpdateFrame, *parsedWindowUpdateFrame) {
+		t.Fatal("got: ", *parsedWindowUpdateFrame, "\nwant: ", windowUpdateFrame)
+	}
+}
+
 func TestCreateParseDataFrame(t *testing.T) {
 	buffer := new(bytes.Buffer)
 	framer, err := NewFramer(buffer, buffer)

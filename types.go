@@ -144,14 +144,15 @@ import (
 //
 //  Control Frame: WINDOW_UPDATE
 //  +----------------------------------+
-//  |1|000000000000001|0000000000001001|
+//  |1|000000000000011|0000000000001001|
 //  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   | = 8
+//  | flags (8)  |  Length (24 bits)   | flags = 0, lenght = 8
 //  +----------------------------------+
 //  |X|      Stream-ID (31 bits)       |
 //  +----------------------------------+
-//  |   Delta-Window-Size (32 bits)    |
+//  |X|  Delta-Window-Size (31 bits)   |
 //  +----------------------------------+
+//
 
 // Version is the protocol version number that this package implements.
 const Version = 3
