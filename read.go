@@ -86,6 +86,19 @@ func (frame *HeadersFrame) read(h ControlFrameHeader, f *Framer) error {
 	return f.readHeadersFrame(h, frame)
 }
 
+func (frame *WindowUpdateFrame) read(h ControlFrameHeader, f *Framer) error {
+	frame.CFHeader = h
+	if err := binary.Read(f.r, binary.BigEndian, &frame.StreamId); err != nil {
+		return err
+	}
+	// TODO: frame.CFHeader.Flags should be 0 check
+	// TODO: frame.CFHeader.length should be 8 check
+	if err := binary.Read(f.r, binary.BigEndian, &frame.DeltaWindowSize); err != nil {
+		return err
+	}
+	return nil
+}
+
 func newControlFrame(frameType ControlFrameType) (controlFrame, error) {
 	ctor, ok := cframeCtor[frameType]
 	if !ok {
@@ -95,14 +108,14 @@ func newControlFrame(frameType ControlFrameType) (controlFrame, error) {
 }
 
 var cframeCtor = map[ControlFrameType]func() controlFrame{
-	TypeSynStream: func() controlFrame { return new(SynStreamFrame) },
-	TypeSynReply:  func() controlFrame { return new(SynReplyFrame) },
-	TypeRstStream: func() controlFrame { return new(RstStreamFrame) },
-	TypeSettings:  func() controlFrame { return new(SettingsFrame) },
-	TypePing:      func() controlFrame { return new(PingFrame) },
-	TypeGoAway:    func() controlFrame { return new(GoAwayFrame) },
-	TypeHeaders:   func() controlFrame { return new(HeadersFrame) },
-	// TODO(willchan): Add TypeWindowUpdate
+	TypeSynStream:    func() controlFrame { return new(SynStreamFrame) },
+	TypeSynReply:     func() controlFrame { return new(SynReplyFrame) },
+	TypeRstStream:    func() controlFrame { return new(RstStreamFrame) },
+	TypeSettings:     func() controlFrame { return new(SettingsFrame) },
+	TypePing:         func() controlFrame { return new(PingFrame) },
+	TypeGoAway:       func() controlFrame { return new(GoAwayFrame) },
+	TypeHeaders:      func() controlFrame { return new(HeadersFrame) },
+	TypeWindowUpdate: func() controlFrame { return new(WindowUpdateFrame) },
 }
 
 func (f *Framer) uncorkHeaderDecompressor(payloadSize int64) error {

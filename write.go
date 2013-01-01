@@ -110,6 +110,24 @@ func (frame *HeadersFrame) write(f *Framer) error {
 	return f.writeHeadersFrame(frame)
 }
 
+func (frame *WindowUpdateFrame) write(f *Framer) (err error) {
+	frame.CFHeader.version = Version
+	frame.CFHeader.frameType = TypeWindowUpdate
+	frame.CFHeader.length = 8
+
+	// Serialize frame to Writer
+	if err = writeControlFrameHeader(f.w, frame.CFHeader); err != nil {
+		return
+	}
+	if err = binary.Write(f.w, binary.BigEndian, frame.StreamId); err != nil {
+		return
+	}
+	if err = binary.Write(f.w, binary.BigEndian, frame.DeltaWindowSize); err != nil {
+		return
+	}
+	return nil
+}
+
 func (frame *DataFrame) write(f *Framer) error {
 	if frame.StreamId == 0 {
 		return &Error{ZeroStreamId, 0}
