@@ -318,6 +318,14 @@ type HeadersFrame struct {
 	Headers  http.Header
 }
 
+// WindowUpdateFrame is the unpacked,
+// in-memory representation of a WINDOW_UPDATE frame.
+type WindowUpdateFrame struct {
+	CFHeader        ControlFrameHeader
+	StreamId        uint32
+	DeltaWindowSize uint32
+}
+
 // DataFrame is the unpacked, in-memory representation of a DATA frame.
 type DataFrame struct {
 	// Note, high bit is the "Control" bit. Should be 0 for data frames.
