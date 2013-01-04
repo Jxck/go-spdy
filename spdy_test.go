@@ -27,13 +27,11 @@ var HeadersFixture = http.Header{
 func TestHeaderParsing(t *testing.T) {
 	var headerValueBlockBuf bytes.Buffer
 	writeHeaderValueBlock(&headerValueBlockBuf, HeadersFixture)
-
 	const bogusStreamId = 1
 	newHeaders, err := parseHeaderValueBlock(&headerValueBlockBuf, bogusStreamId)
 	if err != nil {
 		t.Fatal("parseHeaderValueBlock:", err)
 	}
-
 	if !reflect.DeepEqual(HeadersFixture, newHeaders) {
 		t.Fatal("got: ", newHeaders, "\nwant: ", HeadersFixture)
 	}
