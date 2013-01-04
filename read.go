@@ -28,7 +28,10 @@ func (frame *RstStreamFrame) read(h ControlFrameHeader, f *Framer) error {
 	if err := binary.Read(f.r, binary.BigEndian, &frame.Status); err != nil {
 		return err
 	}
-	// TODO: frame.Status should not be 0 check
+	if frame.Status == 0 {
+		// RST_STREAM Status should not be 0
+		return &Error{InvalidControlFrame, frame.StreamId}
+	}
 	if frame.StreamId == 0 {
 		return &Error{ZeroStreamId, 0}
 	}
