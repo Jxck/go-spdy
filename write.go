@@ -91,6 +91,7 @@ func (frame *PingFrame) write(f *Framer) (err error) {
 func (frame *GoAwayFrame) write(f *Framer) (err error) {
 	frame.CFHeader.version = Version
 	frame.CFHeader.frameType = TypeGoAway
+	frame.CFHeader.Flags = 0
 	frame.CFHeader.length = 8
 
 	// Serialize frame to Writer

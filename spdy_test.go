@@ -272,6 +272,9 @@ func TestCreateParsePing(t *testing.T) {
 	if !ok {
 		t.Fatal("Parsed incorrect frame type:", frame)
 	}
+	if parsedPingFrame.CFHeader.Flags != 0 {
+		t.Fatal("Parsed incorrect frame type:", parsedPingFrame)
+	}
 	if !reflect.DeepEqual(pingFrame, *parsedPingFrame) {
 		t.Fatal("got: ", *parsedPingFrame, "\nwant: ", pingFrame)
 	}
@@ -294,6 +297,12 @@ func TestCreateParseGoAway(t *testing.T) {
 	if err := framer.WriteFrame(&goAwayFrame); err != nil {
 		t.Fatal("WriteFrame:", err)
 	}
+	if goAwayFrame.CFHeader.Flags != 0 {
+		t.Fatal("Incorrect frame type:", goAwayFrame)
+	}
+	if goAwayFrame.CFHeader.length != 8 {
+		t.Fatal("Incorrect frame type:", goAwayFrame)
+	}
 	frame, err := framer.ReadFrame()
 	if err != nil {
 		t.Fatal("ReadFrame:", err)
@@ -301,6 +310,12 @@ func TestCreateParseGoAway(t *testing.T) {
 	parsedGoAwayFrame, ok := frame.(*GoAwayFrame)
 	if !ok {
 		t.Fatal("Parsed incorrect frame type:", frame)
+	}
+	if parsedGoAwayFrame.CFHeader.Flags != 0 {
+		t.Fatal("Incorrect frame type:", parsedGoAwayFrame)
+	}
+	if parsedGoAwayFrame.CFHeader.length != 8 {
+		t.Fatal("Incorrect frame type:", parsedGoAwayFrame)
 	}
 	if !reflect.DeepEqual(goAwayFrame, *parsedGoAwayFrame) {
 		t.Fatal("got: ", *parsedGoAwayFrame, "\nwant: ", goAwayFrame)
