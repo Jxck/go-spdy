@@ -50,6 +50,9 @@ const (
 // that can be stored in one frame.
 const MaxDataLength = 1<<24 - 1
 
+// Separator for multiple Header Values
+const HeaderValueSeparator = "\x00"
+
 // Frame is a single SPDY frame in its unpacked in-memory representation.
 // Use Framer to read and write it.
 type Frame interface {

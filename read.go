@@ -197,7 +197,7 @@ func parseHeaderValueBlock(r io.Reader, streamId uint32) (http.Header, error) {
 		if _, err := io.ReadFull(r, value); err != nil {
 			return nil, err
 		}
-		valueList := strings.Split(string(value), "\x00")
+		valueList := strings.Split(string(value), HeaderValueSeparator)
 		for _, v := range valueList {
 			h.Add(name, v)
 		}
