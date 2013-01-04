@@ -147,7 +147,7 @@ func (f *Framer) WriteFrame(frame Frame) error {
 
 // Write Control bit 1, Version, Type, Flags, Length to buffer
 func writeControlFrameHeader(w io.Writer, h ControlFrameHeader) error {
-	controlBit := uint16(0x8000) // TODO: move
+	controlBit := uint16(0x8000)
 	if err := binary.Write(w, binary.BigEndian, controlBit|h.version); err != nil {
 		return err
 	}
@@ -221,7 +221,6 @@ func (f *Framer) writeSynStreamFrame(frame *SynStreamFrame) (err error) {
 	if err = binary.Write(f.w, binary.BigEndian, frame.AssociatedToStreamId); err != nil {
 		return err
 	}
-	// TODO: fix this for version 3
 	if err = binary.Write(f.w, binary.BigEndian, frame.Priority<<5); err != nil {
 		return err
 	}
