@@ -68,7 +68,10 @@ func (frame *PingFrame) read(h ControlFrameHeader, f *Framer) error {
 	if frame.Id == 0 {
 		return &Error{ZeroStreamId, 0}
 	}
-	// TODO: frame.CFHeader.Flags should be 0 check
+	if frame.CFHeader.Flags != 0 {
+		// frame.CFHeader.Flags should be 0
+		return &Error{InvalidControlFrame, frame.Id}
+	}
 	return nil
 }
 

@@ -261,6 +261,9 @@ func TestCreateParsePing(t *testing.T) {
 	if err := framer.WriteFrame(&pingFrame); err != nil {
 		t.Fatal("WriteFrame:", err)
 	}
+	if pingFrame.CFHeader.Flags != 0 {
+		t.Fatal("Incorrect frame type:", pingFrame)
+	}
 	frame, err := framer.ReadFrame()
 	if err != nil {
 		t.Fatal("ReadFrame:", err)
