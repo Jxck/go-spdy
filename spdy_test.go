@@ -18,16 +18,15 @@ import (
 
 var log = fmt.Println
 
-// TODO: share header fixture?
+var HeadersFixture = http.Header{
+	"Url":     []string{"http://www.google.com/"},
+	"Method":  []string{"get"},
+	"Version": []string{"http/1.1"},
+}
 
 func TestHeaderParsing(t *testing.T) {
-	headers := http.Header{
-		"Url":     []string{"http://www.google.com/"},
-		"Method":  []string{"get"},
-		"Version": []string{"http/1.1"},
-	}
 	var headerValueBlockBuf bytes.Buffer
-	writeHeaderValueBlock(&headerValueBlockBuf, headers)
+	writeHeaderValueBlock(&headerValueBlockBuf, HeadersFixture)
 
 	const bogusStreamId = 1
 	newHeaders, err := parseHeaderValueBlock(&headerValueBlockBuf, bogusStreamId)
@@ -35,8 +34,8 @@ func TestHeaderParsing(t *testing.T) {
 		t.Fatal("parseHeaderValueBlock:", err)
 	}
 
-	if !reflect.DeepEqual(headers, newHeaders) {
-		t.Fatal("got: ", newHeaders, "\nwant: ", headers)
+	if !reflect.DeepEqual(HeadersFixture, newHeaders) {
+		t.Fatal("got: ", newHeaders, "\nwant: ", HeadersFixture)
 	}
 }
 
@@ -55,11 +54,7 @@ func TestCreateParseSynStreamFrameCompressionDisable(t *testing.T) {
 			frameType: TypeSynStream,
 		},
 		StreamId: 2,
-		Headers: http.Header{
-			"Url":     []string{"http://www.google.com/"},
-			"Method":  []string{"get"},
-			"Version": []string{"http/1.1"},
-		},
+		Headers:  HeadersFixture,
 	}
 	if err := framer.WriteFrame(&synStreamFrame); err != nil {
 		t.Fatal("WriteFrame without compression:", err)
@@ -86,11 +81,7 @@ func TestCreateParseSynStreamFrameCompressionEnable(t *testing.T) {
 			frameType: TypeSynStream,
 		},
 		StreamId: 2,
-		Headers: http.Header{
-			"Url":     []string{"http://www.google.com/"},
-			"Method":  []string{"get"},
-			"Version": []string{"http/1.1"},
-		},
+		Headers:  HeadersFixture,
 	}
 	if err != nil {
 		t.Fatal("Failed to create new framer:", err)
@@ -125,11 +116,7 @@ func TestCreateParseSynReplyFrameCompressionDisable(t *testing.T) {
 			frameType: TypeSynReply,
 		},
 		StreamId: 2,
-		Headers: http.Header{
-			"Url":     []string{"http://www.google.com/"},
-			"Method":  []string{"get"},
-			"Version": []string{"http/1.1"},
-		},
+		Headers:  HeadersFixture,
 	}
 	if err := framer.WriteFrame(&synReplyFrame); err != nil {
 		t.Fatal("WriteFrame without compression:", err)
@@ -156,11 +143,7 @@ func TestCreateParseSynReplyFrameCompressionEnable(t *testing.T) {
 			frameType: TypeSynReply,
 		},
 		StreamId: 2,
-		Headers: http.Header{
-			"Url":     []string{"http://www.google.com/"},
-			"Method":  []string{"get"},
-			"Version": []string{"http/1.1"},
-		},
+		Headers:  HeadersFixture,
 	}
 	if err != nil {
 		t.Fatal("Failed to create new framer:", err)
@@ -317,11 +300,7 @@ func TestCreateParseHeadersFrame(t *testing.T) {
 		},
 		StreamId: 2,
 	}
-	headersFrame.Headers = http.Header{
-		"Url":     []string{"http://www.google.com/"},
-		"Method":  []string{"get"},
-		"Version": []string{"http/1.1"},
-	}
+	headersFrame.Headers = HeadersFixture
 	if err := framer.WriteFrame(&headersFrame); err != nil {
 		t.Fatal("WriteFrame without compression:", err)
 	}
@@ -347,11 +326,7 @@ func TestCreateParseHeadersFrameCompressionEnable(t *testing.T) {
 		},
 		StreamId: 2,
 	}
-	headersFrame.Headers = http.Header{
-		"Url":     []string{"http://www.google.com/"},
-		"Method":  []string{"get"},
-		"Version": []string{"http/1.1"},
-	}
+	headersFrame.Headers = HeadersFixture
 
 	framer, err := NewFramer(buffer, buffer)
 	if err := framer.WriteFrame(&headersFrame); err != nil {
@@ -438,11 +413,7 @@ func TestCompressionContextAcrossFrames(t *testing.T) {
 			frameType: TypeHeaders,
 		},
 		StreamId: 2,
-		Headers: http.Header{
-			"Url":     []string{"http://www.google.com/"},
-			"Method":  []string{"get"},
-			"Version": []string{"http/1.1"},
-		},
+		Headers:  HeadersFixture,
 	}
 	if err := framer.WriteFrame(&headersFrame); err != nil {
 		t.Fatal("WriteFrame (HEADERS):", err)
@@ -460,11 +431,8 @@ func TestCompressionContextAcrossFrames(t *testing.T) {
 		1,   // Slot
 		nil, // Headers
 	}
-	synStreamFrame.Headers = http.Header{
-		"Url":     []string{"http://www.google.com/"},
-		"Method":  []string{"get"},
-		"Version": []string{"http/1.1"},
-	}
+	synStreamFrame.Headers = HeadersFixture
+
 	if err := framer.WriteFrame(&synStreamFrame); err != nil {
 		t.Fatal("WriteFrame (SYN_STREAM):", err)
 	}
@@ -512,11 +480,7 @@ func TestMultipleSPDYFrames(t *testing.T) {
 			frameType: TypeHeaders,
 		},
 		StreamId: 2,
-		Headers: http.Header{
-			"Url":     []string{"http://www.google.com/"},
-			"Method":  []string{"get"},
-			"Version": []string{"http/1.1"},
-		},
+		Headers:  HeadersFixture,
 	}
 	synStreamFrame := SynStreamFrame{
 		CFHeader: ControlFrameHeader{
@@ -524,11 +488,7 @@ func TestMultipleSPDYFrames(t *testing.T) {
 			frameType: TypeSynStream,
 		},
 		StreamId: 2,
-		Headers: http.Header{
-			"Url":     []string{"http://www.google.com/"},
-			"Method":  []string{"get"},
-			"Version": []string{"http/1.1"},
-		},
+		Headers:  HeadersFixture,
 	}
 
 	// Start the goroutines to write the frames.
