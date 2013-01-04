@@ -117,6 +117,7 @@ func (frame *HeadersFrame) write(f *Framer) error {
 func (frame *WindowUpdateFrame) write(f *Framer) (err error) {
 	frame.CFHeader.version = Version
 	frame.CFHeader.frameType = TypeWindowUpdate
+	frame.CFHeader.Flags = 0
 	frame.CFHeader.length = 8
 
 	// Serialize frame to Writer

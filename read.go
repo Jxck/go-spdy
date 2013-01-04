@@ -103,8 +103,14 @@ func (frame *WindowUpdateFrame) read(h ControlFrameHeader, f *Framer) error {
 	if err := binary.Read(f.r, binary.BigEndian, &frame.StreamId); err != nil {
 		return err
 	}
-	// TODO: frame.CFHeader.Flags should be 0 check
-	// TODO: frame.CFHeader.length should be 8 check
+	if frame.CFHeader.Flags != 0 {
+		// frame.CFHeader.Flags should be 0
+		return &Error{InvalidControlFrame, frame.StreamId}
+	}
+	if frame.CFHeader.length != 8 {
+		// frame.CFHeader.length should be 8
+		return &Error{InvalidControlFrame, frame.StreamId}
+	}
 	if err := binary.Read(f.r, binary.BigEndian, &frame.DeltaWindowSize); err != nil {
 		return err
 	}

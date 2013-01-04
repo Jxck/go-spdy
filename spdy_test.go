@@ -399,6 +399,12 @@ func TestCreateParseWindowUpdateFrame(t *testing.T) {
 	if err := framer.WriteFrame(&windowUpdateFrame); err != nil {
 		t.Fatal("WriteFrame:", err)
 	}
+	if windowUpdateFrame.CFHeader.Flags != 0 {
+		t.Fatal("Incorrect frame type:", windowUpdateFrame)
+	}
+	if windowUpdateFrame.CFHeader.length != 8 {
+		t.Fatal("Incorrect frame type:", windowUpdateFrame)
+	}
 	frame, err := framer.ReadFrame()
 	if err != nil {
 		t.Fatal("ReadFrame:", err)
@@ -406,6 +412,12 @@ func TestCreateParseWindowUpdateFrame(t *testing.T) {
 	parsedWindowUpdateFrame, ok := frame.(*WindowUpdateFrame)
 	if !ok {
 		t.Fatal("Parsed incorrect frame type:", frame)
+	}
+	if parsedWindowUpdateFrame.CFHeader.Flags != 0 {
+		t.Fatal("Incorrect frame type:", parsedWindowUpdateFrame)
+	}
+	if parsedWindowUpdateFrame.CFHeader.length != 8 {
+		t.Fatal("Incorrect frame type:", parsedWindowUpdateFrame)
 	}
 	if !reflect.DeepEqual(windowUpdateFrame, *parsedWindowUpdateFrame) {
 		t.Fatal("got: ", *parsedWindowUpdateFrame, "\nwant: ", windowUpdateFrame)
