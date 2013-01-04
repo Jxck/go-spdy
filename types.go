@@ -13,162 +13,6 @@ import (
 	"net/http"
 )
 
-//  Data Frame Format
-//  +----------------------------------+
-//  |0|       Stream-ID (31bits)       |
-//  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   | flags = 0x01(FLAG_FIN) or 0x02(FLAG_COMPRESS)
-//  +----------------------------------+
-//  |               Data               |
-//  +----------------------------------+
-//
-//  Control Frame Format
-//  +----------------------------------+
-//  |1| Version(15bits) | Type(16bits) |
-//  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   |
-//  +----------------------------------+
-//  |               Data               |
-//  +----------------------------------+
-//
-//  Control Frame: SYN_STREAM (18 + length)
-//  +----------------------------------+
-//  |1| Version(15bits) | Type(16bits) |
-//  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   | flags = 0x01(FLAG_FIN), 0x02(FLAG_UNIDIRECTIONAL)
-//  +----------------------------------+
-//  |X|       Stream-ID(31bits)        | <-+
-//  +----------------------------------+   |
-//  |X|Associated-To-Stream-ID (31bits)|   | 10byte
-//  +----------------------------------+   |
-//  |Pri(3)|unused(5)|SLOT(8bits)|     | <-+
-//  +----------------------------------+
-//  | # of Name/Value pair(int 32)     | <-+
-//  +----------------------------------+   | compressed
-//  |     Length of name (int 32)      |   |
-//  +----------------------------------+   |
-//  |          Name (String)           |   |
-//  +----------------------------------+   |
-//  |     Length of value (int 32)     |   |
-//  +----------------------------------+   |
-//  |          Value (String)          |   |
-//  +----------------------------------+   |
-//  |            (repeat)              | <-+
-//  +----------------------------------+
-//
-//  Control Frame: SYN_REPLY (24 + length)
-//  +----------------------------------+
-//  |1| Version(15bits) | Type(16bits) |
-//  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   | flags = 0x01(FLAG_FIN)
-//  +----------------------------------+
-//  |X|       Stream-ID(31bits)        |
-//  +----------------------------------+
-//  | # of Name/Value pair(int 32)     | <-+
-//  +----------------------------------+   | compressed
-//  |     Length of name (int 32)      |   |
-//  +----------------------------------+   |
-//  |          Name (String)           |   |
-//  +----------------------------------+   |
-//  |     Length of value (int 32)     |   |
-//  +----------------------------------+   |
-//  |          Value (String)          |   |
-//  +----------------------------------+   |
-//  |            (repeat)              | <-+
-//  +----------------------------------+
-//
-//  Control Frame: RST_STREAM (16 byte)
-//  +----------------------------------+
-//  |1| Version(15bits) | Type(16bits) |
-//  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   | flags = 0, length = 8
-//  +----------------------------------+
-//  |X|       Stream-ID(31bits)        |
-//  +----------------------------------+
-//  |        Status code (32 bits)     |
-//  +----------------------------------+
-//
-//  Control Frame: SETTINGS (8 + length)
-//  +----------------------------------+
-//  |1| Version(15bits) | Type(16bits) |
-//  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   | flags = 0x1(FLAG_SETTINGS_CLEAR_SETINGS)
-//  +----------------------------------+
-//  | ID.flags (8) | Unique ID (24)    |
-//  +----------------------------------+
-//  |          Value (32)              |
-//  +----------------------------------+
-//
-//  Control Frame: PING (12)
-//  +----------------------------------+
-//  |1| Version(15bits) | Type(16bits) |
-//  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   | flags = 0, length = 4
-//  +----------------------------------+
-//  |        Unique id (32 bits)       |
-//  +----------------------------------+
-//
-//  Control Frame: GOAWAY
-//  +----------------------------------+
-//  |1| Version(15bits) | Type(16bits) |
-//  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   | flags = 0, length = 8
-//  +----------------------------------+
-//  |X| Last-accepted-stream-id(31bits)|
-//  +----------------------------------+
-//  |           Status code            | 0 = OK, 1 = PROTOCOL_ERROR, 11 = INTERNAL_ERROR
-//  +----------------------------------+
-//
-//  Control Frame: HEADERS (12 + length)
-//  +----------------------------------+
-//  |1| Version(15bits) | Type(16bits) |
-//  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   | flags = 0x01 (FLAG_FIN), Length >= 4
-//  +----------------------------------+
-//  |X|      Stream-ID (31 bits)       |
-//  +----------------------------------+
-//  | # of Name/Value pair(int 32)     | <-+
-//  +----------------------------------+   | compressed
-//  |     Length of name (int 32)      |   |
-//  +----------------------------------+   |
-//  |          Name (String)           |   |
-//  +----------------------------------+   |
-//  |     Length of value (int 32)     |   |
-//  +----------------------------------+   |
-//  |          Value (String)          |   |
-//  +----------------------------------+   |
-//  |            (repeat)              | <-+
-//  +----------------------------------+
-//
-//  Control Frame: WINDOW_UPDATE
-//  +----------------------------------+
-//  |1| Version(15bits) | Type(16bits) |
-//  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   | flags = 0, lenght = 8
-//  +----------------------------------+
-//  |X|      Stream-ID (31 bits)       |
-//  +----------------------------------+
-//  |X|  Delta-Window-Size (31 bits)   |
-//  +----------------------------------+
-//
-//  TODO: impliment
-//  Control Frame: CREDENTIAL
-//  +----------------------------------+
-//  |1| Version(15bits) | Type(16bits) |
-//  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   |
-//  +----------------------------------+
-//  |  Slot (16 bits) |                |
-//  +-----------------+                |
-//  |      Proof Length (32 bits)      |
-//  +----------------------------------+
-//  |               Proof              |
-//  +----------------------------------+ <+
-//  |   Certificate Length (32 bits)   |  |
-//  +----------------------------------+  | Repeated until end of frame
-//  |            Certificate           |  |
-//  +----------------------------------+ <+
-
 // Version is the protocol version number that this package implements.
 const Version = 3
 
@@ -214,6 +58,15 @@ type Frame interface {
 
 // ControlFrameHeader contains all the fields in a control frame header,
 // in its unpacked in-memory representation.
+//
+//  Control Frame Format
+//  +----------------------------------+
+//  |1| Version(15bits) | Type(16bits) |
+//  +----------------------------------+
+//  | flags (8)  |  Length (24 bits)   |
+//  +----------------------------------+
+//  |               Data               |
+//  +----------------------------------+
 type ControlFrameHeader struct {
 	// Note, high bit is the "Control" bit.
 	version   uint16
@@ -229,6 +82,31 @@ type controlFrame interface {
 
 // SynStreamFrame is the unpacked,
 // in-memory representation of a SYN_STREAM frame.
+//
+//  Control Frame: SYN_STREAM (18 + length)
+//  +----------------------------------+
+//  |1| Version(15bits) | Type(16bits) |
+//  +----------------------------------+
+//  | flags (8)  |  Length (24 bits)   | flags = 0x01(FLAG_FIN), 0x02(FLAG_UNIDIRECTIONAL)
+//  +----------------------------------+
+//  |X|       Stream-ID(31bits)        | <-+
+//  +----------------------------------+   |
+//  |X|Associated-To-Stream-ID (31bits)|   | 10byte
+//  +----------------------------------+   |
+//  |Pri(3)|unused(5)|SLOT(8bits)|     | <-+
+//  +----------------------------------+
+//  | # of Name/Value pair(int 32)     | <-+
+//  +----------------------------------+   | compressed
+//  |     Length of name (int 32)      |   |
+//  +----------------------------------+   |
+//  |          Name (String)           |   |
+//  +----------------------------------+   |
+//  |     Length of value (int 32)     |   |
+//  +----------------------------------+   |
+//  |          Value (String)          |   |
+//  +----------------------------------+   |
+//  |            (repeat)              | <-+
+//  +----------------------------------+
 type SynStreamFrame struct {
 	CFHeader             ControlFrameHeader
 	StreamId             uint32
@@ -242,6 +120,27 @@ type SynStreamFrame struct {
 
 // SynReplyFrame is the unpacked,
 // in-memory representation of a SYN_REPLY frame.
+//
+//  Control Frame: SYN_REPLY (24 + length)
+//  +----------------------------------+
+//  |1| Version(15bits) | Type(16bits) |
+//  +----------------------------------+
+//  | flags (8)  |  Length (24 bits)   | flags = 0x01(FLAG_FIN)
+//  +----------------------------------+
+//  |X|       Stream-ID(31bits)        |
+//  +----------------------------------+
+//  | # of Name/Value pair(int 32)     | <-+
+//  +----------------------------------+   | compressed
+//  |     Length of name (int 32)      |   |
+//  +----------------------------------+   |
+//  |          Name (String)           |   |
+//  +----------------------------------+   |
+//  |     Length of value (int 32)     |   |
+//  +----------------------------------+   |
+//  |          Value (String)          |   |
+//  +----------------------------------+   |
+//  |            (repeat)              | <-+
+//  +----------------------------------+
 type SynReplyFrame struct {
 	CFHeader ControlFrameHeader
 	StreamId uint32
@@ -268,6 +167,17 @@ const ( // 0 is invalid
 // RstStreamFrame is the unpacked,
 // in-memory representation of a RST_STREAM
 // frame.
+//
+//  Control Frame: RST_STREAM (16 byte)
+//  +----------------------------------+
+//  |1| Version(15bits) | Type(16bits) |
+//  +----------------------------------+
+//  | flags (8)  |  Length (24 bits)   | flags = 0, length = 8
+//  +----------------------------------+
+//  |X|       Stream-ID(31bits)        |
+//  +----------------------------------+
+//  |        Status code (32 bits)     |
+//  +----------------------------------+
 type RstStreamFrame struct {
 	CFHeader ControlFrameHeader
 	StreamId uint32
@@ -307,6 +217,17 @@ type SettingsFlagIdValue struct {
 
 // SettingsFrame is the unpacked,
 // in-memory representation of a SPDY SETTINGS frame.
+//
+//  Control Frame: SETTINGS (8 + length)
+//  +----------------------------------+
+//  |1| Version(15bits) | Type(16bits) |
+//  +----------------------------------+
+//  | flags (8)  |  Length (24 bits)   | flags = 0x1(FLAG_SETTINGS_CLEAR_SETINGS)
+//  +----------------------------------+
+//  | ID.flags (8) | Unique ID (24)    |
+//  +----------------------------------+
+//  |          Value (32)              |
+//  +----------------------------------+
 type SettingsFrame struct {
 	CFHeader     ControlFrameHeader
 	FlagIdValues []SettingsFlagIdValue
@@ -314,6 +235,15 @@ type SettingsFrame struct {
 
 // PingFrame is the unpacked,
 // in-memory representation of a PING frame.
+//
+//  Control Frame: PING (12)
+//  +----------------------------------+
+//  |1| Version(15bits) | Type(16bits) |
+//  +----------------------------------+
+//  | flags (8)  |  Length (24 bits)   | flags = 0, length = 4
+//  +----------------------------------+
+//  |        Unique id (32 bits)       |
+//  +----------------------------------+
 type PingFrame struct {
 	CFHeader ControlFrameHeader
 	Id       uint32
@@ -321,6 +251,17 @@ type PingFrame struct {
 
 // GoAwayFrame is the unpacked,
 // in-memory representation of a GOAWAY frame.
+//
+//  Control Frame: GOAWAY
+//  +----------------------------------+
+//  |1| Version(15bits) | Type(16bits) |
+//  +----------------------------------+
+//  | flags (8)  |  Length (24 bits)   | flags = 0, length = 8
+//  +----------------------------------+
+//  |X| Last-accepted-stream-id(31bits)|
+//  +----------------------------------+
+//  |           Status code            | 0 = OK, 1 = PROTOCOL_ERROR, 11 = INTERNAL_ERROR
+//  +----------------------------------+
 type GoAwayFrame struct {
 	CFHeader         ControlFrameHeader
 	LastGoodStreamId uint32
@@ -330,6 +271,27 @@ type GoAwayFrame struct {
 
 // HeadersFrame is the unpacked,
 // in-memory representation of a HEADERS frame.
+//
+//  Control Frame: HEADERS (12 + length)
+//  +----------------------------------+
+//  |1| Version(15bits) | Type(16bits) |
+//  +----------------------------------+
+//  | flags (8)  |  Length (24 bits)   | flags = 0x01 (FLAG_FIN), Length >= 4
+//  +----------------------------------+
+//  |X|      Stream-ID (31 bits)       |
+//  +----------------------------------+
+//  | # of Name/Value pair(int 32)     | <-+
+//  +----------------------------------+   | compressed
+//  |     Length of name (int 32)      |   |
+//  +----------------------------------+   |
+//  |          Name (String)           |   |
+//  +----------------------------------+   |
+//  |     Length of value (int 32)     |   |
+//  +----------------------------------+   |
+//  |          Value (String)          |   |
+//  +----------------------------------+   |
+//  |            (repeat)              | <-+
+//  +----------------------------------+
 type HeadersFrame struct {
 	CFHeader ControlFrameHeader
 	StreamId uint32
@@ -338,14 +300,52 @@ type HeadersFrame struct {
 
 // WindowUpdateFrame is the unpacked,
 // in-memory representation of a WINDOW_UPDATE frame.
+//
+//  Control Frame: WINDOW_UPDATE
+//  +----------------------------------+
+//  |1| Version(15bits) | Type(16bits) |
+//  +----------------------------------+
+//  | flags (8)  |  Length (24 bits)   | flags = 0, lenght = 8
+//  +----------------------------------+
+//  |X|      Stream-ID (31 bits)       |
+//  +----------------------------------+
+//  |X|  Delta-Window-Size (31 bits)   |
+//  +----------------------------------+
 type WindowUpdateFrame struct {
 	CFHeader        ControlFrameHeader
 	StreamId        uint32
 	DeltaWindowSize uint32
 }
 
+//  TODO: impliment
+//  Control Frame: CREDENTIAL
+//  +----------------------------------+
+//  |1| Version(15bits) | Type(16bits) |
+//  +----------------------------------+
+//  | flags (8)  |  Length (24 bits)   |
+//  +----------------------------------+
+//  |  Slot (16 bits) |                |
+//  +-----------------+                |
+//  |      Proof Length (32 bits)      |
+//  +----------------------------------+
+//  |               Proof              |
+//  +----------------------------------+ <+
+//  |   Certificate Length (32 bits)   |  |
+//  +----------------------------------+  | Repeated until end of frame
+//  |            Certificate           |  |
+//  +----------------------------------+ <+
+
 // DataFrame is the unpacked,
 // in-memory representation of a DATA frame.
+//
+//  Data Frame Format
+//  +----------------------------------+
+//  |0|       Stream-ID (31bits)       |
+//  +----------------------------------+
+//  | flags (8)  |  Length (24 bits)   | flags = 0x01(FLAG_FIN) or 0x02(FLAG_COMPRESS)
+//  +----------------------------------+
+//  |               Data               |
+//  +----------------------------------+
 type DataFrame struct {
 	// Note, high bit is the "Control" bit.
 	// Should be 0 for data frames.
