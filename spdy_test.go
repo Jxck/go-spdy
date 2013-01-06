@@ -192,27 +192,6 @@ func TestCreateParseRstStream(t *testing.T) {
 	}
 }
 
-func TestInvalidRstStream(t *testing.T) {
-	buffer := new(bytes.Buffer)
-	framer, err := NewFramer(buffer, buffer)
-	if err != nil {
-		t.Fatal("Failed to create new framer:", err)
-	}
-	rstStreamFrame := RstStreamFrame{
-		CFHeader: ControlFrameHeader{
-			version:   Version,
-			frameType: TypeRstStream,
-		},
-		StreamId: 1,
-		Status:   0, // Status 0 is invalid
-	}
-	err = framer.WriteFrame(&rstStreamFrame)
-	eerr, ok := err.(*Error)
-	if !ok || eerr.Err != InvalidControlFrame {
-		t.Errorf("%v , incorrect error %#v", rstStreamFrame, eerr)
-	}
-}
-
 func TestCreateParseSettings(t *testing.T) {
 	buffer := new(bytes.Buffer)
 	framer, err := NewFramer(buffer, buffer)
@@ -599,6 +578,8 @@ func TestReadMalformedZlibHeader(t *testing.T) {
 		}
 	}
 }
+
+// TODO: these tests are too weak for updating SPDY spec. Fix me.
 
 //type zeroStream struct {
 //	frame   Frame

@@ -319,7 +319,7 @@ type WindowUpdateFrame struct {
 	DeltaWindowSize uint32
 }
 
-//  TODO: impliment
+//  TODO: Unused, so not implemented
 //  Control Frame: CREDENTIAL
 //  +----------------------------------+
 //  |1| Version(15bits) | Type(16bits) |
