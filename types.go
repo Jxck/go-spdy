@@ -268,8 +268,7 @@ type PingFrame struct {
 type GoAwayFrame struct {
 	CFHeader         ControlFrameHeader
 	LastGoodStreamId uint32
-	Status           uint32
-	// TODO: StatusCode is better
+	StatusCode       uint32
 }
 
 // HeadersFrame is the unpacked,
