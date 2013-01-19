@@ -10,7 +10,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-	//	"io/ioutil"
+	"io/ioutil"
 	"net/http"
 	"reflect"
 	"testing"
@@ -42,9 +42,9 @@ func TestCreateParseSynStreamFrameCompressionDisable(t *testing.T) {
 	// fixture framer for no compression test
 	framer := &Framer{
 		headerCompressionDisabled: true,
-		w:                         buffer,
-		headerBuf:                 new(bytes.Buffer),
-		r:                         buffer,
+		w:         buffer,
+		headerBuf: new(bytes.Buffer),
+		r:         buffer,
 	}
 	synStreamFrame := SynStreamFrame{
 		CFHeader: ControlFrameHeader{
@@ -104,9 +104,9 @@ func TestCreateParseSynReplyFrameCompressionDisable(t *testing.T) {
 	buffer := new(bytes.Buffer)
 	framer := &Framer{
 		headerCompressionDisabled: true,
-		w:                         buffer,
-		headerBuf:                 new(bytes.Buffer),
-		r:                         buffer,
+		w:         buffer,
+		headerBuf: new(bytes.Buffer),
+		r:         buffer,
 	}
 	synReplyFrame := SynReplyFrame{
 		CFHeader: ControlFrameHeader{
@@ -305,9 +305,9 @@ func TestCreateParseHeadersFrame(t *testing.T) {
 	buffer := new(bytes.Buffer)
 	framer := &Framer{
 		headerCompressionDisabled: true,
-		w:                         buffer,
-		headerBuf:                 new(bytes.Buffer),
-		r:                         buffer,
+		w:         buffer,
+		headerBuf: new(bytes.Buffer),
+		r:         buffer,
 	}
 	headersFrame := HeadersFrame{
 		CFHeader: ControlFrameHeader{
@@ -581,65 +581,68 @@ func TestReadMalformedZlibHeader(t *testing.T) {
 
 // TODO: these tests are too weak for updating SPDY spec. Fix me.
 
-//type zeroStream struct {
-//	frame   Frame
-//	encoded string
-//}
+type zeroStream struct {
+	frame   Frame
+	encoded string
+}
 
-//var streamIdZeroFrames = map[string]zeroStream{
-//	"SynStreamFrame": {
-//		&SynStreamFrame{StreamId: 0},
-//		"gAIAAQAAABgAAAAAAAAAAAAAePnfolGyYmAAAAAA//8=",
-//	},
-//	"SynReplyFrame": {
-//		&SynReplyFrame{StreamId: 0},
-//		"gAIAAgAAABQAAAAAAAB4+d+iUbJiYAAAAAD//w==",
-//	},
-//	"RstStreamFrame": {
-//		&RstStreamFrame{StreamId: 0},
-//		"gAIAAwAAAAgAAAAAAAAAAA==",
-//	},
-//	"HeadersFrame": {
-//		&HeadersFrame{StreamId: 0},
-//		"gAIACAAAABQAAAAAAAB4+d+iUbJiYAAAAAD//w==",
-//	},
-//	"DataFrame": {
-//		&DataFrame{StreamId: 0},
-//		"AAAAAAAAAAA=",
-//	},
-//	"PingFrame": {
-//		&PingFrame{Id: 0},
-//		"gAIABgAAAAQAAAAA",
-//	},
-//}
+var streamIdZeroFrames = map[string]zeroStream{
+	"SynStreamFrame": {
+		&SynStreamFrame{StreamId: 0},
+		"gAIAAQAAABgAAAAAAAAAAAAAePnfolGyYmAAAAAA//8=",
+	},
+	"SynReplyFrame": {
+		&SynReplyFrame{StreamId: 0},
+		"gAIAAgAAABQAAAAAAAB4+d+iUbJiYAAAAAD//w==",
+	},
+	"RstStreamFrame": {
+		&RstStreamFrame{StreamId: 0},
+		"gAIAAwAAAAgAAAAAAAAAAA==",
+	},
+	"HeadersFrame": {
+		&HeadersFrame{StreamId: 0},
+		"gAIACAAAABQAAAAAAAB4+d+iUbJiYAAAAAD//w==",
+	},
+	"DataFrame": {
+		&DataFrame{StreamId: 0},
+		"AAAAAAAAAAA=",
+	},
+	"PingFrame": {
+		&PingFrame{Id: 0},
+		"gAIABgAAAAQAAAAA",
+	},
+}
 
-// func TestNoZeroStreamId(t *testing.T) {
-// 	for name, f := range streamIdZeroFrames {
-// 		b, err := base64.StdEncoding.DecodeString(f.encoded)
-// 		log(name, b)
-// 		if err != nil {
-// 			t.Errorf("Unable to decode base64 encoded frame %s: %v", f, err)
-// 			continue
-// 		}
-// 		framer, err := NewFramer(ioutil.Discard, bytes.NewReader(b))
-// 		if err != nil {
-// 			t.Fatalf("NewFramer: %v", err)
-// 		}
-// 		err = framer.WriteFrame(f.frame)
-// 		checkZeroStreamId(t, name, "WriteFrame", err)
-//
-// 		_, err = framer.ReadFrame()
-// 		checkZeroStreamId(t, name, "ReadFrame", err)
-// 	}
-// }
-//
-// func checkZeroStreamId(t *testing.T, frame string, method string, err error) {
-// 	if err == nil {
-// 		t.Errorf("%s ZeroStreamId, no error on %s", method, frame)
-// 		return
-// 	}
-// 	eerr, ok := err.(*Error)
-// 	if !ok || eerr.Err != ZeroStreamId {
-// 		t.Errorf("%s ZeroStreamId, incorrect error %#v, frame %s", method, eerr, frame)
-// 	}
-// }
+func TestNoZeroStreamId(t *testing.T) {
+	t.Log("skipping") // TODO: update to work with SPDY3
+	return
+
+	for name, f := range streamIdZeroFrames {
+		b, err := base64.StdEncoding.DecodeString(f.encoded)
+		log(name, b)
+		if err != nil {
+			t.Errorf("Unable to decode base64 encoded frame %s: %v", f, err)
+			continue
+		}
+		framer, err := NewFramer(ioutil.Discard, bytes.NewReader(b))
+		if err != nil {
+			t.Fatalf("NewFramer: %v", err)
+		}
+		err = framer.WriteFrame(f.frame)
+		checkZeroStreamId(t, name, "WriteFrame", err)
+
+		_, err = framer.ReadFrame()
+		checkZeroStreamId(t, name, "ReadFrame", err)
+	}
+}
+
+func checkZeroStreamId(t *testing.T, frame string, method string, err error) {
+	if err == nil {
+		t.Errorf("%s ZeroStreamId, no error on %s", method, frame)
+		return
+	}
+	eerr, ok := err.(*Error)
+	if !ok || eerr.Err != ZeroStreamId {
+		t.Errorf("%s ZeroStreamId, incorrect error %#v, frame %s", method, eerr, frame)
+	}
+}
