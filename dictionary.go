@@ -4,7 +4,7 @@
 
 // headerDictionary is the dictionary sent to the zlib compressor/decompressor.
 // The dictionary is defined in
-// http://tools.ietf.org/html/draft-ietf-httpbis-http2-00#section-2.6.10.1
+// http://www.chromium.org/spdy/spdy-protocol/spdy-protocol-draft3
 package spdy
 
 var headerDictionary = []byte{

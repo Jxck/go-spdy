@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package spdy implements HTTP2.0 (SPDY/3) protocol which is described in
-// http://tools.ietf.org/html/draft-ietf-httpbis-http2-00
+// Package spdy implements SPDY/3 protocol which is described in
+// http://www.chromium.org/spdy/spdy-protocol/spdy-protocol-draft3
 package spdy
 
 import (
