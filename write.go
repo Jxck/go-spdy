@@ -186,7 +186,7 @@ func writeHeaderValueBlock(w io.Writer, h http.Header) (n int, err error) {
 			return
 		}
 		n += len(name)
-		v := strings.Join(values, HeaderValueSeparator)
+		v := strings.Join(values, headerValueSeparator)
 		if err = binary.Write(w, binary.BigEndian, uint32(len(v))); err != nil {
 			return
 		}
