@@ -251,15 +251,6 @@ func (e *Error) Error() string {
 	return string(e.Err)
 }
 
-// TODO: need this ?
-// var mustReqHeaders = map[string]bool{
-// 	"method":  true,
-// 	"host":    true,
-// 	"path":    true,
-// 	"scheme":  true,
-// 	"version": true,
-// }
-
 var invalidReqHeaders = map[string]bool{
 	"Connection":        true,
 	"Host":              true,
