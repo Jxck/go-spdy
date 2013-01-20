@@ -109,7 +109,7 @@ func (frame *GoAwayFrame) write(f *Framer) (err error) {
 	if err = binary.Write(f.w, binary.BigEndian, frame.LastGoodStreamId); err != nil {
 		return
 	}
-	if err = binary.Write(f.w, binary.BigEndian, frame.StatusCode); err != nil {
+	if err = binary.Write(f.w, binary.BigEndian, frame.GoAwayStatus); err != nil {
 		return
 	}
 	return nil

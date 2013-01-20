@@ -266,10 +266,18 @@ type PingFrame struct {
 //  +----------------------------------+
 //  |           Status code            | 0 = OK, 1 = PROTOCOL_ERROR, 11 = INTERNAL_ERROR
 //  +----------------------------------+
+type GoAwayStatus uint32
+
+const (
+	GoAwayOK            GoAwayStatus = 0
+	GoAwayProtocolError              = 1
+	GoAwayInternalError              = 11
+)
+
 type GoAwayFrame struct {
 	CFHeader         ControlFrameHeader
 	LastGoodStreamId uint32
-	StatusCode       uint32
+	GoAwayStatus     uint32
 }
 
 // HeadersFrame is the unpacked,
