@@ -423,7 +423,7 @@ type Framer struct {
 // buffered implementation to optimize performance.
 func NewFramer(w io.Writer, r io.Reader) (*Framer, error) {
 	compressBuf := new(bytes.Buffer)
-	compressor, err := zlib.NewWriterLevelDict(compressBuf, zlib.BestCompression, []byte(HeaderDictionary))
+	compressor, err := zlib.NewWriterLevelDict(compressBuf, zlib.BestCompression, []byte(headerDictionary))
 	if err != nil {
 		return nil, err
 	}

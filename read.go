@@ -157,7 +157,7 @@ func (f *Framer) uncorkHeaderDecompressor(payloadSize int64) error {
 		return nil
 	}
 	f.headerReader = io.LimitedReader{R: f.r, N: payloadSize}
-	decompressor, err := zlib.NewReaderDict(&f.headerReader, []byte(HeaderDictionary))
+	decompressor, err := zlib.NewReaderDict(&f.headerReader, []byte(headerDictionary))
 	if err != nil {
 		return err
 	}
