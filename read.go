@@ -12,19 +12,14 @@ import (
 	"strings"
 )
 
-// Read a frame to SynStreamFrame
-// delegating framer.readSynStreamFrame
 func (frame *SynStreamFrame) read(h ControlFrameHeader, f *Framer) error {
 	return f.readSynStreamFrame(h, frame)
 }
 
-// Read a frame to SynReplyFrame
-// delegating framer.readSynReplyFrame
 func (frame *SynReplyFrame) read(h ControlFrameHeader, f *Framer) error {
 	return f.readSynReplyFrame(h, frame)
 }
 
-// Read a frame to RstStreamFrame
 func (frame *RstStreamFrame) read(h ControlFrameHeader, f *Framer) error {
 	frame.CFHeader = h
 	if err := binary.Read(f.r, binary.BigEndian, &frame.StreamId); err != nil {
@@ -34,7 +29,6 @@ func (frame *RstStreamFrame) read(h ControlFrameHeader, f *Framer) error {
 		return err
 	}
 	if frame.Status == 0 {
-		// RST_STREAM Status should not be 0
 		return &Error{InvalidControlFrame, frame.StreamId}
 	}
 	if frame.StreamId == 0 {
@@ -43,7 +37,6 @@ func (frame *RstStreamFrame) read(h ControlFrameHeader, f *Framer) error {
 	return nil
 }
 
-// Read a frame to SettingFrame
 func (frame *SettingsFrame) read(h ControlFrameHeader, f *Framer) error {
 	frame.CFHeader = h
 	var numSettings uint32
@@ -55,8 +48,6 @@ func (frame *SettingsFrame) read(h ControlFrameHeader, f *Framer) error {
 		if err := binary.Read(f.r, binary.BigEndian, &frame.FlagIdValues[i].Id); err != nil {
 			return err
 		}
-		// | flag(8) | ID(24) |
-		// |     value(32)    |
 		frame.FlagIdValues[i].Flag = SettingsFlag((frame.FlagIdValues[i].Id & 0xff000000) >> 24)
 		frame.FlagIdValues[i].Id &= 0xffffff
 		if err := binary.Read(f.r, binary.BigEndian, &frame.FlagIdValues[i].Value); err != nil {
@@ -66,7 +57,6 @@ func (frame *SettingsFrame) read(h ControlFrameHeader, f *Framer) error {
 	return nil
 }
 
-// Read a frame to PingFrame
 func (frame *PingFrame) read(h ControlFrameHeader, f *Framer) error {
 	frame.CFHeader = h
 	if err := binary.Read(f.r, binary.BigEndian, &frame.Id); err != nil {
@@ -76,24 +66,20 @@ func (frame *PingFrame) read(h ControlFrameHeader, f *Framer) error {
 		return &Error{ZeroStreamId, 0}
 	}
 	if frame.CFHeader.Flags != 0 {
-		// frame.CFHeader.Flags should be 0
 		return &Error{InvalidControlFrame, frame.Id}
 	}
 	return nil
 }
 
-// Read a frame to GoAwayFrame
 func (frame *GoAwayFrame) read(h ControlFrameHeader, f *Framer) error {
 	frame.CFHeader = h
 	if err := binary.Read(f.r, binary.BigEndian, &frame.LastGoodStreamId); err != nil {
 		return err
 	}
 	if frame.CFHeader.Flags != 0 {
-		// frame.CFHeader.Flags should be 0
 		return &Error{InvalidControlFrame, frame.LastGoodStreamId}
 	}
 	if frame.CFHeader.length != 8 {
-		// frame.CFHeader.length should be 8
 		return &Error{InvalidControlFrame, frame.LastGoodStreamId}
 	}
 	if err := binary.Read(f.r, binary.BigEndian, &frame.GoAwayStatus); err != nil {
@@ -102,24 +88,19 @@ func (frame *GoAwayFrame) read(h ControlFrameHeader, f *Framer) error {
 	return nil
 }
 
-// Read a frame to HeadersFrame
-// delegating framer.readHeadersFrame
 func (frame *HeadersFrame) read(h ControlFrameHeader, f *Framer) error {
 	return f.readHeadersFrame(h, frame)
 }
 
-// Read a Frame to WindowUpdateFrame
 func (frame *WindowUpdateFrame) read(h ControlFrameHeader, f *Framer) error {
 	frame.CFHeader = h
 	if err := binary.Read(f.r, binary.BigEndian, &frame.StreamId); err != nil {
 		return err
 	}
 	if frame.CFHeader.Flags != 0 {
-		// frame.CFHeader.Flags should be 0
 		return &Error{InvalidControlFrame, frame.StreamId}
 	}
 	if frame.CFHeader.length != 8 {
-		// frame.CFHeader.length should be 8
 		return &Error{InvalidControlFrame, frame.StreamId}
 	}
 	if err := binary.Read(f.r, binary.BigEndian, &frame.DeltaWindowSize); err != nil {
@@ -128,7 +109,6 @@ func (frame *WindowUpdateFrame) read(h ControlFrameHeader, f *Framer) error {
 	return nil
 }
 
-// creates a controlFrame from ControlFrameType
 func newControlFrame(frameType ControlFrameType) (controlFrame, error) {
 	ctor, ok := cframeCtor[frameType]
 	if !ok {
@@ -137,7 +117,6 @@ func newControlFrame(frameType ControlFrameType) (controlFrame, error) {
 	return ctor(), nil
 }
 
-// map of ControlFrameType and its constructor
 var cframeCtor = map[ControlFrameType]func() controlFrame{
 	TypeSynStream:    func() controlFrame { return new(SynStreamFrame) },
 	TypeSynReply:     func() controlFrame { return new(SynReplyFrame) },
@@ -149,8 +128,6 @@ var cframeCtor = map[ControlFrameType]func() controlFrame{
 	TypeWindowUpdate: func() controlFrame { return new(WindowUpdateFrame) },
 }
 
-// Configuring header decompressor
-// using HeaderDictionary
 func (f *Framer) uncorkHeaderDecompressor(payloadSize int64) error {
 	if f.headerDecompressor != nil {
 		f.headerReader.N = payloadSize
@@ -165,15 +142,12 @@ func (f *Framer) uncorkHeaderDecompressor(payloadSize int64) error {
 	return nil
 }
 
-// ReadFrame reads SPDY encoded data and returns a decompressed Frame.
-// delegates to parseControlFrame or parseDataFrame
 func (f *Framer) ReadFrame() (Frame, error) {
 	var firstWord uint32
 	if err := binary.Read(f.r, binary.BigEndian, &firstWord); err != nil {
 		return nil, err
 	}
 	if (firstWord & 0x80000000) != 0 {
-		// | 1 | Version(15) | Type(16) |
 		frameType := ControlFrameType(firstWord & 0xffff)
 		version := uint16(0x7fff & (firstWord >> 16))
 		return f.parseControlFrame(version, frameType)
@@ -181,13 +155,11 @@ func (f *Framer) ReadFrame() (Frame, error) {
 	return f.parseDataFrame(firstWord & 0x7fffffff)
 }
 
-// parsing control frame using specified control frame type
 func (f *Framer) parseControlFrame(version uint16, frameType ControlFrameType) (Frame, error) {
 	var length uint32
 	if err := binary.Read(f.r, binary.BigEndian, &length); err != nil {
 		return nil, err
 	}
-	// | Flags (8) | Length (24) |
 	flags := ControlFlags((length & 0xff000000) >> 24)
 	length &= 0xffffff
 	header := ControlFrameHeader{version, frameType, flags, length}
@@ -195,14 +167,12 @@ func (f *Framer) parseControlFrame(version uint16, frameType ControlFrameType) (
 	if err != nil {
 		return nil, err
 	}
-	if err = cframe.read(header, f); err != nil { // delegating each Frames read()
+	if err = cframe.read(header, f); err != nil {
 		return nil, err
 	}
 	return cframe, nil
 }
 
-// Read a header/value from buffer
-// if compression is enabled, r is set to headerDecompressor
 func parseHeaderValueBlock(r io.Reader, streamId uint32) (http.Header, error) {
 	var numHeaders uint32
 	if err := binary.Read(r, binary.BigEndian, &numHeaders); err != nil {
@@ -245,9 +215,6 @@ func parseHeaderValueBlock(r io.Reader, streamId uint32) (http.Header, error) {
 	return h, nil
 }
 
-// Read a frame to SynStreamFrame
-// if header compression is enable,
-// reads a Decompressor using HeaderDictionary
 func (f *Framer) readSynStreamFrame(h ControlFrameHeader, frame *SynStreamFrame) error {
 	frame.CFHeader = h
 	var err error
@@ -261,21 +228,17 @@ func (f *Framer) readSynStreamFrame(h ControlFrameHeader, frame *SynStreamFrame)
 		return err
 	}
 	frame.Priority >>= 5
-
 	if err = binary.Read(f.r, binary.BigEndian, &frame.Slot); err != nil {
 		return err
 	}
-
 	reader := f.r
 	if !f.headerCompressionDisabled {
-		// set a decompressor using HeaderDictionary to f.headerDecompressor
 		err := f.uncorkHeaderDecompressor(int64(h.length - 10))
 		if err != nil {
 			return err
 		}
 		reader = f.headerDecompressor
 	}
-
 	frame.Headers, err = parseHeaderValueBlock(reader, frame.StreamId)
 	if !f.headerCompressionDisabled && ((err == io.EOF && f.headerReader.N == 0) || f.headerReader.N != 0) {
 		err = &Error{WrongCompressedPayloadSize, 0}
@@ -283,7 +246,6 @@ func (f *Framer) readSynStreamFrame(h ControlFrameHeader, frame *SynStreamFrame)
 	if err != nil {
 		return err
 	}
-	// check Request Header doesn't includes invalid Header
 	for h := range frame.Headers {
 		if invalidReqHeaders[h] {
 			return &Error{InvalidHeaderPresent, frame.StreamId}
@@ -297,9 +259,6 @@ func (f *Framer) readSynStreamFrame(h ControlFrameHeader, frame *SynStreamFrame)
 	return nil
 }
 
-// Read a frame to SynReplyFrame
-// if header compression is enable,
-// reads a Decompressor using HeaderDictionary
 func (f *Framer) readSynReplyFrame(h ControlFrameHeader, frame *SynReplyFrame) error {
 	frame.CFHeader = h
 	var err error
@@ -308,7 +267,6 @@ func (f *Framer) readSynReplyFrame(h ControlFrameHeader, frame *SynReplyFrame) e
 	}
 	reader := f.r
 	if !f.headerCompressionDisabled {
-		// set a decompressor using HeaderDictionary to f.headerDecompressor
 		err := f.uncorkHeaderDecompressor(int64(h.length - 4))
 		if err != nil {
 			return err
@@ -333,9 +291,6 @@ func (f *Framer) readSynReplyFrame(h ControlFrameHeader, frame *SynReplyFrame) e
 	return nil
 }
 
-// Read a frame to HeadersFrame
-// if header compression is enable,
-// reads a Decompressor using HeaderDictionary
 func (f *Framer) readHeadersFrame(h ControlFrameHeader, frame *HeadersFrame) error {
 	frame.CFHeader = h
 	var err error
@@ -344,7 +299,6 @@ func (f *Framer) readHeadersFrame(h ControlFrameHeader, frame *HeadersFrame) err
 	}
 	reader := f.r
 	if !f.headerCompressionDisabled {
-		// set a decompressor using HeaderDictionary to f.headerDecompressor
 		err := f.uncorkHeaderDecompressor(int64(h.length - 4))
 		if err != nil {
 			return err
@@ -358,7 +312,6 @@ func (f *Framer) readHeadersFrame(h ControlFrameHeader, frame *HeadersFrame) err
 	if err != nil {
 		return err
 	}
-
 	var invalidHeaders map[string]bool
 	if frame.StreamId%2 == 0 {
 		invalidHeaders = invalidReqHeaders
@@ -376,7 +329,6 @@ func (f *Framer) readHeadersFrame(h ControlFrameHeader, frame *HeadersFrame) err
 	return nil
 }
 
-// parsing data frame
 func (f *Framer) parseDataFrame(streamId uint32) (*DataFrame, error) {
 	var length uint32
 	if err := binary.Read(f.r, binary.BigEndian, &length); err != nil {
