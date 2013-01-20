@@ -251,8 +251,6 @@ func (f *Framer) readSynStreamFrame(h ControlFrameHeader, frame *SynStreamFrame)
 			return &Error{InvalidHeaderPresent, frame.StreamId}
 		}
 	}
-	// TODO: check Request Header includes correct header
-	//       listed in mustReqHeaders(type.go)
 	if frame.StreamId == 0 {
 		return &Error{ZeroStreamId, 0}
 	}
