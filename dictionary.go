@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// headerDictionary is the dictionary sent to the zlib compressor/decompressor.
+// The dictionary is defined in
+// http://tools.ietf.org/html/draft-ietf-httpbis-http2-00#section-2.6.10.1
 package spdy
 
-// HeaderDictionary is the dictionary sent to the zlib compressor/decompressor.
-// This dictionary defined in
-// http://tools.ietf.org/html/draft-ietf-httpbis-http2-00#section-2.6.10.1
 var headerDictionary = []byte{
 	0x00, 0x00, 0x00, 0x07, 0x6f, 0x70, 0x74, 0x69,
 	0x6f, 0x6e, 0x73, 0x00, 0x00, 0x00, 0x04, 0x68,
