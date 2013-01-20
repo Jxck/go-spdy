@@ -150,11 +150,11 @@ type SynReplyFrame struct {
 	Headers  http.Header
 }
 
-// RSTStatusCode represents the status that led to a RST_STREAM
-type RSTStatusCode uint32
+// RstStreamStatus represents the status that led to a RST_STREAM
+type RstStreamStatus uint32
 
 const ( // 0 is invalid
-	ProtocolError         RSTStatusCode = 1
+	ProtocolError         RstStreamStatus = 1
 	InvalidStream                       = 2
 	RefusedStream                       = 3
 	UnsupportedVersion                  = 4
@@ -184,7 +184,7 @@ const ( // 0 is invalid
 type RstStreamFrame struct {
 	CFHeader ControlFrameHeader
 	StreamId uint32
-	Status   RSTStatusCode
+	Status   RstStreamStatus
 }
 
 // SettingsFlag represents a flag in a SETTINGS frame.
