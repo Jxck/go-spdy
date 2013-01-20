@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package spdy implements SPDY/3 protocol which is described in
+// Package spdy implements the SPDY protocol (currently SPDY/3), described in
 // http://www.chromium.org/spdy/spdy-protocol/spdy-protocol-draft3
 package spdy
 
