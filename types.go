@@ -20,7 +20,7 @@ const Version = 3
 type ControlFrameType uint16
 
 // Control frame type constants
-const ( // Noop (0x0005) removed spdy/3
+const (
 	TypeSynStream    ControlFrameType = 0x0001
 	TypeSynReply                      = 0x0002
 	TypeRstStream                     = 0x0003
@@ -46,8 +46,7 @@ const (
 	DataFlagCompressed           = 0x02
 )
 
-// MaxDataLength is the maximum number of bytes
-// that can be stored in one frame.
+// MaxDataLength is the maximum number of bytes that can be stored in one frame.
 const MaxDataLength = 1<<24 - 1
 
 // headerValueSepator separates multiple header values.
