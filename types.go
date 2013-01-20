@@ -153,18 +153,19 @@ type SynReplyFrame struct {
 // RstStreamStatus represents the status that led to a RST_STREAM
 type RstStreamStatus uint32
 
-const ( // 0 is invalid
-	ProtocolError         RstStreamStatus = 1
-	InvalidStream                       = 2
-	RefusedStream                       = 3
-	UnsupportedVersion                  = 4
-	Cancel                              = 5
-	InternalError                       = 6
-	FlowControlError                    = 7
-	STREAM_IN_USE                       = 8
-	STREAM_ALREADY_CLOSED               = 9
-	INVALID_CREDENTIALS                 = 10
-	FRAME_TOO_LARGE                     = 11
+const (
+	_                             = iota
+	ProtocolError RstStreamStatus = iota
+	InvalidStream
+	RefusedStream
+	UnsupportedVersion
+	Cancel
+	InternalError
+	FlowControlError
+	StreamInUse
+	StreamAlreadyClosed
+	InvalidCredentials
+	FrameTooLarge
 )
 
 // RstStreamFrame is the unpacked,
