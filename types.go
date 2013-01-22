@@ -209,13 +209,13 @@ type ErrorCode string
 
 const (
 	UnlowercasedHeaderName     ErrorCode = "header was not lowercased"
-	DuplicateHeaders           ErrorCode = "multiple headers with same name"
-	WrongCompressedPayloadSize ErrorCode = "compressed payload size was incorrect"
-	UnknownFrameType           ErrorCode = "unknown frame type"
-	InvalidControlFrame        ErrorCode = "invalid control frame"
-	InvalidDataFrame           ErrorCode = "invalid data frame"
-	InvalidHeaderPresent       ErrorCode = "frame contained invalid header"
-	ZeroStreamId               ErrorCode = "stream id zero is disallowed"
+	DuplicateHeaders                     = "multiple headers with same name"
+	WrongCompressedPayloadSize           = "compressed payload size was incorrect"
+	UnknownFrameType                     = "unknown frame type"
+	InvalidControlFrame                  = "invalid control frame"
+	InvalidDataFrame                     = "invalid data frame"
+	InvalidHeaderPresent                 = "frame contained invalid header"
+	ZeroStreamId                         = "stream id zero is disallowed"
 )
 
 // Error contains both the type of error and additional values. StreamId is 0
