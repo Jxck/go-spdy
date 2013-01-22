@@ -28,7 +28,7 @@ func (frame *RstStreamFrame) write(f *Framer) (err error) {
 	frame.CFHeader.Flags = 0
 	frame.CFHeader.length = 8
 
-	// Serialize frame to Writer
+	// Serialize frame to Writer.
 	if err = writeControlFrameHeader(f.w, frame.CFHeader); err != nil {
 		return
 	}
@@ -49,7 +49,7 @@ func (frame *SettingsFrame) write(f *Framer) (err error) {
 	frame.CFHeader.frameType = TypeSettings
 	frame.CFHeader.length = uint32(len(frame.FlagIdValues)*8 + 4)
 
-	// Serialize frame to Writer
+	// Serialize frame to Writer.
 	if err = writeControlFrameHeader(f.w, frame.CFHeader); err != nil {
 		return
 	}
@@ -77,7 +77,7 @@ func (frame *PingFrame) write(f *Framer) (err error) {
 	frame.CFHeader.Flags = 0
 	frame.CFHeader.length = 4
 
-	// Serialize frame to Writer
+	// Serialize frame to Writer.
 	if err = writeControlFrameHeader(f.w, frame.CFHeader); err != nil {
 		return
 	}
@@ -93,7 +93,7 @@ func (frame *GoAwayFrame) write(f *Framer) (err error) {
 	frame.CFHeader.Flags = 0
 	frame.CFHeader.length = 8
 
-	// Serialize frame to Writer
+	// Serialize frame to Writer.
 	if err = writeControlFrameHeader(f.w, frame.CFHeader); err != nil {
 		return
 	}
@@ -116,7 +116,7 @@ func (frame *WindowUpdateFrame) write(f *Framer) (err error) {
 	frame.CFHeader.Flags = 0
 	frame.CFHeader.length = 8
 
-	// Serialize frame to Writer
+	// Serialize frame to Writer.
 	if err = writeControlFrameHeader(f.w, frame.CFHeader); err != nil {
 		return
 	}
@@ -197,12 +197,12 @@ func (f *Framer) writeSynStreamFrame(frame *SynStreamFrame) (err error) {
 		f.headerCompressor.Flush()
 	}
 
-	// Set ControlFrameHeader
+	// Set ControlFrameHeader.
 	frame.CFHeader.version = Version
 	frame.CFHeader.frameType = TypeSynStream
 	frame.CFHeader.length = uint32(len(f.headerBuf.Bytes()) + 10)
 
-	// Serialize frame to Writer
+	// Serialize frame to Writer.
 	if err = writeControlFrameHeader(f.w, frame.CFHeader); err != nil {
 		return err
 	}
@@ -241,12 +241,12 @@ func (f *Framer) writeSynReplyFrame(frame *SynReplyFrame) (err error) {
 		f.headerCompressor.Flush()
 	}
 
-	// Set ControlFrameHeader
+	// Set ControlFrameHeader.
 	frame.CFHeader.version = Version
 	frame.CFHeader.frameType = TypeSynReply
 	frame.CFHeader.length = uint32(len(f.headerBuf.Bytes()) + 4)
 
-	// Serialize frame to Writer
+	// Serialize frame to Writer.
 	if err = writeControlFrameHeader(f.w, frame.CFHeader); err != nil {
 		return
 	}
@@ -276,12 +276,12 @@ func (f *Framer) writeHeadersFrame(frame *HeadersFrame) (err error) {
 		f.headerCompressor.Flush()
 	}
 
-	// Set ControlFrameHeader
+	// Set ControlFrameHeader.
 	frame.CFHeader.version = Version
 	frame.CFHeader.frameType = TypeHeaders
 	frame.CFHeader.length = uint32(len(f.headerBuf.Bytes()) + 4)
 
-	// Serialize frame to Writer
+	// Serialize frame to Writer.
 	if err = writeControlFrameHeader(f.w, frame.CFHeader); err != nil {
 		return
 	}
@@ -299,12 +299,12 @@ func (f *Framer) writeDataFrame(frame *DataFrame) (err error) {
 	if frame.StreamId == 0 {
 		return &Error{ZeroStreamId, 0}
 	}
-	// Validate DataFrame
+	// Validate DataFrame.
 	if frame.StreamId&0x80000000 != 0 || len(frame.Data) >= 0x0f000000 {
 		return &Error{InvalidDataFrame, frame.StreamId}
 	}
 
-	// Serialize frame to Writer
+	// Serialize frame to Writer.
 	if err = binary.Write(f.w, binary.BigEndian, frame.StreamId); err != nil {
 		return
 	}

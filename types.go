@@ -19,7 +19,7 @@ const Version = 3
 // ControlFrameType stores the type field in a control frame header.
 type ControlFrameType uint16
 
-// Control frame type constants
+// Control frame type constants.
 const (
 	TypeSynStream    ControlFrameType = 0x0001
 	TypeSynReply                      = 0x0002
@@ -194,7 +194,7 @@ type WindowUpdateFrame struct {
 	DeltaWindowSize uint32
 }
 
-// TODO: Implement credential frame and related methods
+// TODO: Implement credential frame and related methods.
 
 // DataFrame is the unpacked, in-memory representation of a DATA frame.
 type DataFrame struct {

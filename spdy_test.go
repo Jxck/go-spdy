@@ -39,7 +39,7 @@ func TestHeaderParsing(t *testing.T) {
 
 func TestCreateParseSynStreamFrameCompressionDisable(t *testing.T) {
 	buffer := new(bytes.Buffer)
-	// fixture framer for no compression test
+	// Fixture framer for no compression test.
 	framer := &Framer{
 		headerCompressionDisabled: true,
 		w:         buffer,
