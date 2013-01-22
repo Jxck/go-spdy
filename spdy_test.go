@@ -16,8 +16,6 @@ import (
 	"testing"
 )
 
-var log = fmt.Println
-
 var HeadersFixture = http.Header{
 	"Url":     []string{"http://www.google.com/"},
 	"Method":  []string{"get"},
@@ -619,7 +617,6 @@ func TestNoZeroStreamId(t *testing.T) {
 
 	for name, f := range streamIdZeroFrames {
 		b, err := base64.StdEncoding.DecodeString(f.encoded)
-		log(name, b)
 		if err != nil {
 			t.Errorf("Unable to decode base64 encoded frame %s: %v", f, err)
 			continue
