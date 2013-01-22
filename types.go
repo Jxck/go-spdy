@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package spdy implements the SPDY protocol (currently SPDY/3), described in
-// http://www.chromium.org/spdy/spdy-protocol/spdy-protocol-draft3
+// http://www.chromium.org/spdy/spdy-protocol/spdy-protocol-draft3.
 package spdy
 
 import (
@@ -52,8 +52,8 @@ const MaxDataLength = 1<<24 - 1
 // headerValueSepator separates multiple header values.
 const headerValueSeparator = "\x00"
 
-// Frame is a single SPDY frame in its unpacked in-memory representation.
-// Use Framer to read and write it.
+// Frame is a single SPDY frame in its unpacked in-memory representation. Use
+// Framer to read and write it.
 type Frame interface {
 	write(f *Framer) error
 }
@@ -73,8 +73,8 @@ type controlFrame interface {
 	read(h ControlFrameHeader, f *Framer) error
 }
 
-// SynStreamFrame is the unpacked,
-// in-memory representation of a SYN_STREAM frame.
+// SynStreamFrame is the unpacked, in-memory representation of a SYN_STREAM
+// frame.
 type SynStreamFrame struct {
 	CFHeader             ControlFrameHeader
 	StreamId             uint32
@@ -86,15 +86,14 @@ type SynStreamFrame struct {
 	Headers  http.Header
 }
 
-// SynReplyFrame is the unpacked,
-// in-memory representation of a SYN_REPLY frame.
+// SynReplyFrame is the unpacked, in-memory representation of a SYN_REPLY frame.
 type SynReplyFrame struct {
 	CFHeader ControlFrameHeader
 	StreamId uint32
 	Headers  http.Header
 }
 
-// RstStreamStatus represents the status that led to a RST_STREAM
+// RstStreamStatus represents the status that led to a RST_STREAM.
 type RstStreamStatus uint32
 
 const (
@@ -112,8 +111,7 @@ const (
 	FrameTooLarge
 )
 
-// RstStreamFrame is the unpacked,
-// in-memory representation of a RST_STREAM
+// RstStreamFrame is the unpacked, in-memory representation of a RST_STREAM
 // frame.
 type RstStreamFrame struct {
 	CFHeader ControlFrameHeader
@@ -143,17 +141,16 @@ const (
 	SettingsClientCretificateVectorSize            = 8
 )
 
-// SettingsFlagIdValue is the unpacked,
-// in-memory representation of the combined
-// flag/id/value for a setting in a SETTINGS frame.
+// SettingsFlagIdValue is the unpacked, in-memory representation of the
+// combined flag/id/value for a setting in a SETTINGS frame.
 type SettingsFlagIdValue struct {
 	Flag  SettingsFlag
 	Id    SettingsId
 	Value uint32
 }
 
-// SettingsFrame is the unpacked,
-// in-memory representation of a SPDY SETTINGS frame.
+// SettingsFrame is the unpacked, in-memory representation of a SPDY
+// SETTINGS frame.
 type SettingsFrame struct {
 	CFHeader     ControlFrameHeader
 	FlagIdValues []SettingsFlagIdValue
@@ -166,8 +163,7 @@ type PingFrame struct {
 	Id       uint32
 }
 
-// GoAwayFrame is the unpacked,
-// in-memory representation of a GOAWAY frame.
+// GoAwayFrame is the unpacked, in-memory representation of a GOAWAY frame.
 type GoAwayStatus uint32
 
 const (
@@ -182,16 +178,15 @@ type GoAwayFrame struct {
 	GoAwayStatus     uint32
 }
 
-// HeadersFrame is the unpacked,
-// in-memory representation of a HEADERS frame.
+// HeadersFrame is the unpacked, in-memory representation of a HEADERS frame.
 type HeadersFrame struct {
 	CFHeader ControlFrameHeader
 	StreamId uint32
 	Headers  http.Header
 }
 
-// WindowUpdateFrame is the unpacked,
-// in-memory representation of a WINDOW_UPDATE frame.
+// WindowUpdateFrame is the unpacked, in-memory representation of a
+// WINDOW_UPDATE frame.
 type WindowUpdateFrame struct {
 	CFHeader        ControlFrameHeader
 	StreamId        uint32
@@ -216,11 +211,9 @@ type WindowUpdateFrame struct {
 //  |            Certificate           |  |
 //  +----------------------------------+ <+
 
-// DataFrame is the unpacked,
-// in-memory representation of a DATA frame.
+// DataFrame is the unpacked, in-memory representation of a DATA frame.
 type DataFrame struct {
-	// Note, high bit is the "Control" bit.
-	// Should be 0 for data frames.
+	// Note, high bit is the "Control" bit. Should be 0 for data frames.
 	StreamId uint32
 	Flags    DataFlags
 	Data     []byte
@@ -266,8 +259,8 @@ var invalidRespHeaders = map[string]bool{
 	"Transfer-Encoding": true,
 }
 
-// Framer handles serializing/deserializing SPDY frames,
-// including compressing/decompressing payloads.
+// Framer handles serializing/deserializing SPDY frames, including compressing/
+// decompressing payloads.
 type Framer struct {
 	headerCompressionDisabled bool
 	w                         io.Writer
