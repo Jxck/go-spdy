@@ -97,8 +97,8 @@ type SynReplyFrame struct {
 type RstStreamStatus uint32
 
 const (
-	_                             = iota
-	ProtocolError RstStreamStatus = iota
+	_ RstStreamStatus = iota
+	ProtocolError
 	InvalidStream
 	RefusedStream
 	UnsupportedVersion
@@ -131,14 +131,15 @@ const (
 type SettingsId uint32
 
 const (
-	SettingsUploadBandwidth             SettingsId = 1
-	SettingsDownloadBandwidth                      = 2
-	SettingsRoundTripTime                          = 3
-	SettingsMaxConcurrentStreams                   = 4
-	SettingsCurrentCwnd                            = 5
-	SettingsDownloadRetransRate                    = 6
-	SettingsInitialWindowSize                      = 7
-	SettingsClientCretificateVectorSize            = 8
+	_ SettingsId = iota
+	SettingsUploadBandwidth
+	SettingsDownloadBandwidth
+	SettingsRoundTripTime
+	SettingsMaxConcurrentStreams
+	SettingsCurrentCwnd
+	SettingsDownloadRetransRate
+	SettingsInitialWindowSize
+	SettingsClientCretificateVectorSize
 )
 
 // SettingsFlagIdValue is the unpacked, in-memory representation of the
