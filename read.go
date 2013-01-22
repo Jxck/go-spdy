@@ -142,6 +142,7 @@ func (f *Framer) uncorkHeaderDecompressor(payloadSize int64) error {
 	return nil
 }
 
+// ReadFrame reads SPDY encoded data and returns a decompressed Frame.
 func (f *Framer) ReadFrame() (Frame, error) {
 	var firstWord uint32
 	if err := binary.Read(f.r, binary.BigEndian, &firstWord); err != nil {
