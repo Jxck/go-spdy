@@ -139,8 +139,7 @@ func (f *Framer) WriteFrame(frame Frame) error {
 }
 
 func writeControlFrameHeader(w io.Writer, h ControlFrameHeader) error {
-	controlBit := uint16(0x8000)
-	if err := binary.Write(w, binary.BigEndian, controlBit|h.version); err != nil {
+	if err := binary.Write(w, binary.BigEndian, 0x8000|h.version); err != nil {
 		return err
 	}
 	if err := binary.Write(w, binary.BigEndian, h.frameType); err != nil {
