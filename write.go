@@ -11,19 +11,14 @@ import (
 	"strings"
 )
 
-// Writes a frame to SynStreamFrame
-// delegating framer.writeSynStreamFrame
 func (frame *SynStreamFrame) write(f *Framer) error {
 	return f.writeSynStreamFrame(frame)
 }
 
-// Writes a frame to SynReplyFrame
-// delegating framer.writeSynReplayFrame
 func (frame *SynReplyFrame) write(f *Framer) error {
 	return f.writeSynReplyFrame(frame)
 }
 
-// Writes a frame to RstStreamFrame
 func (frame *RstStreamFrame) write(f *Framer) (err error) {
 	if frame.StreamId == 0 {
 		return &Error{ZeroStreamId, 0}
@@ -41,7 +36,6 @@ func (frame *RstStreamFrame) write(f *Framer) (err error) {
 		return
 	}
 	if frame.Status == 0 {
-		// RST_STREAM Status should not be 0
 		return &Error{InvalidControlFrame, frame.StreamId}
 	}
 	if err = binary.Write(f.w, binary.BigEndian, frame.Status); err != nil {
@@ -50,7 +44,6 @@ func (frame *RstStreamFrame) write(f *Framer) (err error) {
 	return
 }
 
-// Writes a frame to SettingsFrame
 func (frame *SettingsFrame) write(f *Framer) (err error) {
 	frame.CFHeader.version = Version
 	frame.CFHeader.frameType = TypeSettings
@@ -75,7 +68,6 @@ func (frame *SettingsFrame) write(f *Framer) (err error) {
 	return
 }
 
-// Writes a frame to PingFrame
 func (frame *PingFrame) write(f *Framer) (err error) {
 	if frame.Id == 0 {
 		return &Error{ZeroStreamId, 0}
@@ -95,7 +87,6 @@ func (frame *PingFrame) write(f *Framer) (err error) {
 	return
 }
 
-// Writes a frame to GoAwayFrame
 func (frame *GoAwayFrame) write(f *Framer) (err error) {
 	frame.CFHeader.version = Version
 	frame.CFHeader.frameType = TypeGoAway
@@ -115,12 +106,10 @@ func (frame *GoAwayFrame) write(f *Framer) (err error) {
 	return nil
 }
 
-// Writes a frame to HeadersFrame
 func (frame *HeadersFrame) write(f *Framer) error {
 	return f.writeHeadersFrame(frame)
 }
 
-// Writes a frame to WindowUpdateFrame
 func (frame *WindowUpdateFrame) write(f *Framer) (err error) {
 	frame.CFHeader.version = Version
 	frame.CFHeader.frameType = TypeWindowUpdate
@@ -140,18 +129,15 @@ func (frame *WindowUpdateFrame) write(f *Framer) (err error) {
 	return nil
 }
 
-// Writes a frame to DataFrame
 func (frame *DataFrame) write(f *Framer) error {
 	return f.writeDataFrame(frame)
 }
 
 // WriteFrame writes a frame.
-// Delegates each frames write()
 func (f *Framer) WriteFrame(frame Frame) error {
 	return frame.write(f)
 }
 
-// Write Control bit 1, Version, Type, Flags, Length to buffer
 func writeControlFrameHeader(w io.Writer, h ControlFrameHeader) error {
 	controlBit := uint16(0x8000)
 	if err := binary.Write(w, binary.BigEndian, controlBit|h.version); err != nil {
@@ -167,9 +153,6 @@ func writeControlFrameHeader(w io.Writer, h ControlFrameHeader) error {
 	return nil
 }
 
-// Write Header/Values Block to buffer
-// firstly write a number of name/value pair and
-// repeats length of name & name, length of value & value
 func writeHeaderValueBlock(w io.Writer, h http.Header) (n int, err error) {
 	n = 0
 	if err = binary.Write(w, binary.BigEndian, uint32(len(h))); err != nil {
@@ -199,9 +182,6 @@ func writeHeaderValueBlock(w io.Writer, h http.Header) (n int, err error) {
 	return
 }
 
-// Writes a frame to SynStreamFrame
-// if header compression is enable,
-// writes a name/value using zlib.NewWriterLevelDict
 func (f *Framer) writeSynStreamFrame(frame *SynStreamFrame) (err error) {
 	if frame.StreamId == 0 {
 		return &Error{ZeroStreamId, 0}
@@ -209,7 +189,7 @@ func (f *Framer) writeSynStreamFrame(frame *SynStreamFrame) (err error) {
 	// Marshal the headers.
 	var writer io.Writer = f.headerBuf
 	if !f.headerCompressionDisabled {
-		writer = f.headerCompressor // zlib.NewWriterLevelDict
+		writer = f.headerCompressor
 	}
 	if _, err = writeHeaderValueBlock(writer, frame.Headers); err != nil {
 		return
@@ -246,9 +226,6 @@ func (f *Framer) writeSynStreamFrame(frame *SynStreamFrame) (err error) {
 	return nil
 }
 
-// Writes a frame to SynReplyFrame
-// if header compression is enable,
-// writes a name/value using zlib.NewWriterLevelDict
 func (f *Framer) writeSynReplyFrame(frame *SynReplyFrame) (err error) {
 	if frame.StreamId == 0 {
 		return &Error{ZeroStreamId, 0}
@@ -256,7 +233,7 @@ func (f *Framer) writeSynReplyFrame(frame *SynReplyFrame) (err error) {
 	// Marshal the headers.
 	var writer io.Writer = f.headerBuf
 	if !f.headerCompressionDisabled {
-		writer = f.headerCompressor // zlib.NewWriterLevelDict
+		writer = f.headerCompressor
 	}
 	if _, err = writeHeaderValueBlock(writer, frame.Headers); err != nil {
 		return
@@ -284,9 +261,6 @@ func (f *Framer) writeSynReplyFrame(frame *SynReplyFrame) (err error) {
 	return
 }
 
-// Writes a frame to HeadersFrame
-// if header compression is enable,
-// writes a name/value using zlib.NewWriterLevelDict
 func (f *Framer) writeHeadersFrame(frame *HeadersFrame) (err error) {
 	if frame.StreamId == 0 {
 		return &Error{ZeroStreamId, 0}
@@ -294,7 +268,7 @@ func (f *Framer) writeHeadersFrame(frame *HeadersFrame) (err error) {
 	// Marshal the headers.
 	var writer io.Writer = f.headerBuf
 	if !f.headerCompressionDisabled {
-		writer = f.headerCompressor // zlib.NewWriterLevelDict
+		writer = f.headerCompressor
 	}
 	if _, err = writeHeaderValueBlock(writer, frame.Headers); err != nil {
 		return
@@ -322,7 +296,6 @@ func (f *Framer) writeHeadersFrame(frame *HeadersFrame) (err error) {
 	return
 }
 
-// Writes a frame to DataFrame
 func (f *Framer) writeDataFrame(frame *DataFrame) (err error) {
 	if frame.StreamId == 0 {
 		return &Error{ZeroStreamId, 0}
