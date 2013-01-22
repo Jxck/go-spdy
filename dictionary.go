@@ -2,11 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// headerDictionary is the dictionary sent to the zlib compressor/decompressor.
-// The dictionary is defined in
-// http://www.chromium.org/spdy/spdy-protocol/spdy-protocol-draft3
 package spdy
 
+// headerDictionary is the dictionary sent to the zlib compressor/decompressor.
 var headerDictionary = []byte{
 	0x00, 0x00, 0x00, 0x07, 0x6f, 0x70, 0x74, 0x69,
 	0x6f, 0x6e, 0x73, 0x00, 0x00, 0x00, 0x04, 0x68,
