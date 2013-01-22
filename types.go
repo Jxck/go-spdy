@@ -176,7 +176,7 @@ const (
 type GoAwayFrame struct {
 	CFHeader         ControlFrameHeader
 	LastGoodStreamId uint32
-	GoAwayStatus     uint32
+	Status           GoAwayStatus
 }
 
 // HeadersFrame is the unpacked, in-memory representation of a HEADERS frame.

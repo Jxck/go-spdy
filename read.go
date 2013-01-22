@@ -82,7 +82,7 @@ func (frame *GoAwayFrame) read(h ControlFrameHeader, f *Framer) error {
 	if frame.CFHeader.length != 8 {
 		return &Error{InvalidControlFrame, frame.LastGoodStreamId}
 	}
-	if err := binary.Read(f.r, binary.BigEndian, &frame.GoAwayStatus); err != nil {
+	if err := binary.Read(f.r, binary.BigEndian, &frame.Status); err != nil {
 		return err
 	}
 	return nil
