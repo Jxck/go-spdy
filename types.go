@@ -194,23 +194,7 @@ type WindowUpdateFrame struct {
 	DeltaWindowSize uint32
 }
 
-//  TODO: Unused, so not implemented
-//  Control Frame: CREDENTIAL
-//  +----------------------------------+
-//  |1| Version(15bits) | Type(16bits) |
-//  +----------------------------------+
-//  | flags (8)  |  Length (24 bits)   |
-//  +----------------------------------+
-//  |  Slot (16 bits) |                |
-//  +-----------------+                |
-//  |      Proof Length (32 bits)      |
-//  +----------------------------------+
-//  |               Proof              |
-//  +----------------------------------+ <+
-//  |   Certificate Length (32 bits)   |  |
-//  +----------------------------------+  | Repeated until end of frame
-//  |            Certificate           |  |
-//  +----------------------------------+ <+
+// TODO: Implement credential frame and related methods
 
 // DataFrame is the unpacked, in-memory representation of a DATA frame.
 type DataFrame struct {
