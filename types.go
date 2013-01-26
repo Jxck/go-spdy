@@ -35,7 +35,9 @@ const (
 type ControlFlags uint8
 
 const (
-	ControlFlagFin ControlFlags = 0x01
+	ControlFlagFin                   ControlFlags = 0x01
+	ControlFlagUnidirectional                     = 0x02
+	ControlFlagSettingsClearSettings              = 0x01
 )
 
 // DataFlags are the flags that can be set on a data frame.
