@@ -166,9 +166,9 @@ type PingFrame struct {
 type GoAwayStatus uint32
 
 const (
-	GoAwayOK            GoAwayStatus = 0
-	GoAwayProtocolError              = 1
-	GoAwayInternalError              = 11
+	GoAwayOK GoAwayStatus = iota
+	GoAwayProtocolError
+	GoAwayInternalError
 )
 
 type GoAwayFrame struct {
