@@ -97,8 +97,7 @@ type SynReplyFrame struct {
 type RstStreamStatus uint32
 
 const (
-	_ RstStreamStatus = iota
-	ProtocolError
+	ProtocolError RstStreamStatus = iota + 1
 	InvalidStream
 	RefusedStream
 	UnsupportedVersion
@@ -131,8 +130,7 @@ const (
 type SettingsId uint32
 
 const (
-	_ SettingsId = iota
-	SettingsUploadBandwidth
+	SettingsUploadBandwidth SettingsId = iota + 1
 	SettingsDownloadBandwidth
 	SettingsRoundTripTime
 	SettingsMaxConcurrentStreams
