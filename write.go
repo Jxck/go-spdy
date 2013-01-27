@@ -299,7 +299,6 @@ func (f *Framer) writeDataFrame(frame *DataFrame) (err error) {
 	if frame.StreamId == 0 {
 		return &Error{ZeroStreamId, 0}
 	}
-	// Validate DataFrame.
 	if frame.StreamId&0x80000000 != 0 || len(frame.Data) >= 0x0f000000 {
 		return &Error{InvalidDataFrame, frame.StreamId}
 	}

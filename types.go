@@ -19,7 +19,6 @@ const Version = 3
 // ControlFrameType stores the type field in a control frame header.
 type ControlFrameType uint16
 
-// Control frame type constants.
 const (
 	TypeSynStream    ControlFrameType = 0x0001
 	TypeSynReply                      = 0x0002
@@ -64,10 +63,10 @@ type Frame interface {
 // in its unpacked in-memory representation.
 type ControlFrameHeader struct {
 	// Note, high bit is the "Control" bit.
-	version   uint16
+	version   uint16 // spdy version number (15-bit)
 	frameType ControlFrameType
 	Flags     ControlFlags
-	length    uint32
+	length    uint32 // length of data field (24-bit)
 }
 
 type controlFrame interface {
@@ -80,12 +79,10 @@ type controlFrame interface {
 type SynStreamFrame struct {
 	CFHeader             ControlFrameHeader
 	StreamId             uint32
-	AssociatedToStreamId uint32
-	// Note, only 3 highest bits currently used
-	// Rest of Priority is unused.
-	Priority uint8
-	Slot     uint8
-	Headers  http.Header
+	AssociatedToStreamId uint32 // stream id for a stream which this stream is associated to
+	Priority             uint8  // priority of this frame (3-bit)
+	Slot                 uint8  // index in the server's credential vector of the client certificate
+	Headers              http.Header
 }
 
 // SynReplyFrame is the unpacked, in-memory representation of a SYN_REPLY frame.
@@ -157,14 +154,13 @@ type SettingsFrame struct {
 	FlagIdValues []SettingsFlagIdValue
 }
 
-// PingFrame is the unpacked,
-// in-memory representation of a PING frame.
+// PingFrame is the unpacked, in-memory representation of a PING frame.
 type PingFrame struct {
 	CFHeader ControlFrameHeader
-	Id       uint32
+	Id       uint32 // unique id for this ping, from server is even, from client is odd.
 }
 
-// GoAwayFrame is the unpacked, in-memory representation of a GOAWAY frame.
+// GoAwayStatus represents the status in a GoAwayFrame.
 type GoAwayStatus uint32
 
 const (
@@ -173,9 +169,10 @@ const (
 	GoAwayInternalError
 )
 
+// GoAwayFrame is the unpacked, in-memory representation of a GOAWAY frame.
 type GoAwayFrame struct {
 	CFHeader         ControlFrameHeader
-	LastGoodStreamId uint32
+	LastGoodStreamId uint32 // last stream id which was accepted by sender
 	Status           GoAwayStatus
 }
 
@@ -191,7 +188,7 @@ type HeadersFrame struct {
 type WindowUpdateFrame struct {
 	CFHeader        ControlFrameHeader
 	StreamId        uint32
-	DeltaWindowSize uint32
+	DeltaWindowSize uint32 // additional number of bytes to existing window size
 }
 
 // TODO: Implement credential frame and related methods.
@@ -201,7 +198,7 @@ type DataFrame struct {
 	// Note, high bit is the "Control" bit. Should be 0 for data frames.
 	StreamId uint32
 	Flags    DataFlags
-	Data     []byte
+	Data     []byte // payload data of this frame
 }
 
 // A SPDY specific error.
