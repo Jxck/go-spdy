@@ -57,7 +57,7 @@ func (frame *SettingsFrame) write(f *Framer) (err error) {
 		return
 	}
 	for _, flagIdValue := range frame.FlagIdValues {
-		flagId := (uint32(flagIdValue.Flag) << 24) | uint32(flagIdValue.Id)
+		flagId := uint32(flagIdValue.Flag)<<24 | uint32(flagIdValue.Id)
 		if err = binary.Write(f.w, binary.BigEndian, flagId); err != nil {
 			return
 		}
@@ -145,7 +145,7 @@ func writeControlFrameHeader(w io.Writer, h ControlFrameHeader) error {
 	if err := binary.Write(w, binary.BigEndian, h.frameType); err != nil {
 		return err
 	}
-	flagsAndLength := (uint32(h.Flags) << 24) | h.length
+	flagsAndLength := uint32(h.Flags)<<24 | h.length
 	if err := binary.Write(w, binary.BigEndian, flagsAndLength); err != nil {
 		return err
 	}
@@ -307,13 +307,12 @@ func (f *Framer) writeDataFrame(frame *DataFrame) (err error) {
 	if err = binary.Write(f.w, binary.BigEndian, frame.StreamId); err != nil {
 		return
 	}
-	flagsAndLength := (uint32(frame.Flags) << 24) | uint32(len(frame.Data))
+	flagsAndLength := uint32(frame.Flags)<<24 | uint32(len(frame.Data))
 	if err = binary.Write(f.w, binary.BigEndian, flagsAndLength); err != nil {
 		return
 	}
 	if _, err = f.w.Write(frame.Data); err != nil {
 		return
 	}
-
 	return nil
 }
