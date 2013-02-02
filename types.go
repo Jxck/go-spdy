@@ -74,21 +74,23 @@ type controlFrame interface {
 	read(h ControlFrameHeader, f *Framer) error
 }
 
+type StreamId uint32
+
 // SynStreamFrame is the unpacked, in-memory representation of a SYN_STREAM
 // frame.
 type SynStreamFrame struct {
 	CFHeader             ControlFrameHeader
-	StreamId             uint32
-	AssociatedToStreamId uint32 // stream id for a stream which this stream is associated to
-	Priority             uint8  // priority of this frame (3-bit)
-	Slot                 uint8  // index in the server's credential vector of the client certificate
+	StreamId             StreamId
+	AssociatedToStreamId StreamId // stream id for a stream which this stream is associated to
+	Priority             uint8    // priority of this frame (3-bit)
+	Slot                 uint8    // index in the server's credential vector of the client certificate
 	Headers              http.Header
 }
 
 // SynReplyFrame is the unpacked, in-memory representation of a SYN_REPLY frame.
 type SynReplyFrame struct {
 	CFHeader ControlFrameHeader
-	StreamId uint32
+	StreamId StreamId
 	Headers  http.Header
 }
 
@@ -113,7 +115,7 @@ const (
 // frame.
 type RstStreamFrame struct {
 	CFHeader ControlFrameHeader
-	StreamId uint32
+	StreamId StreamId
 	Status   RstStreamStatus
 }
 
@@ -172,14 +174,14 @@ const (
 // GoAwayFrame is the unpacked, in-memory representation of a GOAWAY frame.
 type GoAwayFrame struct {
 	CFHeader         ControlFrameHeader
-	LastGoodStreamId uint32 // last stream id which was accepted by sender
+	LastGoodStreamId StreamId // last stream id which was accepted by sender
 	Status           GoAwayStatus
 }
 
 // HeadersFrame is the unpacked, in-memory representation of a HEADERS frame.
 type HeadersFrame struct {
 	CFHeader ControlFrameHeader
-	StreamId uint32
+	StreamId StreamId
 	Headers  http.Header
 }
 
@@ -187,7 +189,7 @@ type HeadersFrame struct {
 // WINDOW_UPDATE frame.
 type WindowUpdateFrame struct {
 	CFHeader        ControlFrameHeader
-	StreamId        uint32
+	StreamId        StreamId
 	DeltaWindowSize uint32 // additional number of bytes to existing window size
 }
 
@@ -196,7 +198,7 @@ type WindowUpdateFrame struct {
 // DataFrame is the unpacked, in-memory representation of a DATA frame.
 type DataFrame struct {
 	// Note, high bit is the "Control" bit. Should be 0 for data frames.
-	StreamId uint32
+	StreamId StreamId
 	Flags    DataFlags
 	Data     []byte // payload data of this frame
 }
@@ -219,7 +221,7 @@ const (
 // if Error is not associated with a stream.
 type Error struct {
 	Err      ErrorCode
-	StreamId uint32
+	StreamId StreamId
 }
 
 func (e *Error) Error() string {

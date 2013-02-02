@@ -66,7 +66,7 @@ func (frame *PingFrame) read(h ControlFrameHeader, f *Framer) error {
 		return &Error{ZeroStreamId, 0}
 	}
 	if frame.CFHeader.Flags != 0 {
-		return &Error{InvalidControlFrame, frame.Id}
+		return &Error{InvalidControlFrame, StreamId(frame.Id)}
 	}
 	return nil
 }
@@ -153,7 +153,7 @@ func (f *Framer) ReadFrame() (Frame, error) {
 		version := uint16(firstWord >> 16 & 0x7fff)
 		return f.parseControlFrame(version, frameType)
 	}
-	return f.parseDataFrame(firstWord & 0x7fffffff)
+	return f.parseDataFrame(StreamId(firstWord & 0x7fffffff))
 }
 
 func (f *Framer) parseControlFrame(version uint16, frameType ControlFrameType) (Frame, error) {
@@ -174,7 +174,7 @@ func (f *Framer) parseControlFrame(version uint16, frameType ControlFrameType) (
 	return cframe, nil
 }
 
-func parseHeaderValueBlock(r io.Reader, streamId uint32) (http.Header, error) {
+func parseHeaderValueBlock(r io.Reader, streamId StreamId) (http.Header, error) {
 	var numHeaders uint32
 	if err := binary.Read(r, binary.BigEndian, &numHeaders); err != nil {
 		return nil, err
@@ -328,7 +328,7 @@ func (f *Framer) readHeadersFrame(h ControlFrameHeader, frame *HeadersFrame) err
 	return nil
 }
 
-func (f *Framer) parseDataFrame(streamId uint32) (*DataFrame, error) {
+func (f *Framer) parseDataFrame(streamId StreamId) (*DataFrame, error) {
 	var length uint32
 	if err := binary.Read(f.r, binary.BigEndian, &length); err != nil {
 		return nil, err
