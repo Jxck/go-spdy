@@ -62,10 +62,10 @@ type Frame interface {
 // in its unpacked in-memory representation.
 type ControlFrameHeader struct {
 	// Note, high bit is the "Control" bit.
-	version   uint16 // spdy version number (15-bit)
+	version   uint16 // spdy version number
 	frameType ControlFrameType
 	Flags     ControlFlags
-	length    uint32 // length of data field (24-bit)
+	length    uint32 // length of data field
 }
 
 type controlFrame interface {
@@ -73,6 +73,7 @@ type controlFrame interface {
 	read(h ControlFrameHeader, f *Framer) error
 }
 
+// StreamId represents a 31-bit value identifying the stream.
 type StreamId uint32
 
 // SynStreamFrame is the unpacked, in-memory representation of a SYN_STREAM
