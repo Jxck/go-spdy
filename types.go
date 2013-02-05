@@ -43,8 +43,7 @@ const (
 type DataFlags uint8
 
 const (
-	DataFlagFin        DataFlags = 0x01
-	DataFlagCompressed           = 0x02
+	DataFlagFin DataFlags = 0x01
 )
 
 // MaxDataLength is the maximum number of bytes that can be stored in one frame.
