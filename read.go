@@ -273,7 +273,7 @@ func (f *Framer) readSynReplyFrame(h ControlFrameHeader, frame *SynReplyFrame) e
 		reader = f.headerDecompressor
 	}
 	frame.Headers, err = parseHeaderValueBlock(reader, frame.StreamId)
-	if !f.headerCompressionDisabled && err == io.EOF && f.headerReader.N == 0 || f.headerReader.N != 0 {
+	if !f.headerCompressionDisabled && (err == io.EOF && f.headerReader.N == 0 || f.headerReader.N != 0) {
 		err = &Error{WrongCompressedPayloadSize, 0}
 	}
 	if err != nil {
@@ -305,7 +305,7 @@ func (f *Framer) readHeadersFrame(h ControlFrameHeader, frame *HeadersFrame) err
 		reader = f.headerDecompressor
 	}
 	frame.Headers, err = parseHeaderValueBlock(reader, frame.StreamId)
-	if !f.headerCompressionDisabled && err == io.EOF && f.headerReader.N == 0 || f.headerReader.N != 0 {
+	if !f.headerCompressionDisabled && (err == io.EOF && f.headerReader.N == 0 || f.headerReader.N != 0) {
 		err = &Error{WrongCompressedPayloadSize, 0}
 	}
 	if err != nil {
